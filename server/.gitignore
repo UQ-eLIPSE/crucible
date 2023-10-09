@@ -1,0 +1,10 @@
+node_modules
+
+/dist
+
+/config/*.json
+/src/database/data
+/src/manta
+
+yarn.lock
+yarn-error.log

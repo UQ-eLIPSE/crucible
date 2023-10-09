@@ -1,0 +1,39 @@
+input,
+select,
+textarea {
+	padding: 0.6rem;
+	outline: none;
+	border: 1px solid #ccc;
+	border-radius: 0.2rem;
+	transition: border-color 0.5s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+	border-color: #49075e;
+}
+
+label {
+	display: block;
+}
+
+.field {
+	display: block;
+	position: relative;
+	margin: 1rem 0;
+}
+
+.field-label {
+	display: block;
+	font-weight: bold;
+	margin: 0.75rem 0 0.5rem 0;
+}
+
+.field input {
+	width: 100%;
+}
+
+.field input.standard-width {
+	width: auto;
+}

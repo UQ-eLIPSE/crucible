@@ -1,0 +1,14 @@
+{
+    "include": ["**/*.ts", "../jest.config.json"],
+    "compilerOptions": {
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "allowJs": true,
+
+        "paths": {
+			"@/*": [
+				"../src/*"
+			]
+		}
+    }
+}

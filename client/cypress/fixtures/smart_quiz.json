@@ -1,0 +1,23 @@
+{
+    "tags": [],
+    "label": "Smart Quiz",
+    "type": 4,
+    "permissions": {
+        "auth": {
+            "uqsso": {
+                "basic": false,
+                "staffOnly": false
+            },
+            "internal": {
+                "hidden": false
+            }
+        }
+    },
+    "content": {
+        "children": []
+    },
+    "thumbnail": {
+        "url": "https://stluc.manta.uqcloud.net/elipse/public/CHUBS/vets/thumbnail/6204e8d964c71f1df2110cad.png",
+        "size": "cover"
+    }
+}

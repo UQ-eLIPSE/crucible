@@ -1,0 +1,22 @@
+{
+	"extends": "@vue/tsconfig/tsconfig.node.json",
+	"include": [
+		"config.json",
+		"vite.config.*",
+		"vitest.config.*",
+		"cypress.config.*",
+		"playwright.config.*",
+		"jest.config.*"
+	],
+	"compilerOptions": {
+		"types": [
+			"jest",
+			"node",
+			"@types/jest"
+		],
+		"typeRoots": [
+			"node_modules/@types",
+			"/src/types"
+		]
+	}
+}

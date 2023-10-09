@@ -1,0 +1,41 @@
+{
+  "DATABASE": {
+    "URI": "mongodb://localhost:27017/takarabako"
+  },
+  "SERVER": {
+    "PORT": 8080
+  },
+  "CLIENT": {
+    "ADDRESS": "https://$ZONE_TAG.uqcloud.net/"
+  },
+  "MANTA": {
+    "ENABLED": true,
+    "HOST_URL": "$MANTA_HOST",
+    "HOST_FOLDER": "$MANTA_FOLDER",
+    "UPLOAD_SUBFOLDER": {
+      "CONTENT": "content",
+      "THUMBNAIL": "thumbnail",
+      "EDITOR_IMAGES": "editor-images"
+    },
+    "KEY_PATH": "$MANTA_KEY_LOCATION",
+    "KEY_ID": "$MANTA_KEY_ID",
+    "USER": "$MANTA_USER",
+    "SUBUSER": "$MANTA_SUBUSER",
+    "ROLES": [
+      "$MANTA_ROLE"
+    ]
+  },
+  "MANTA_OPERATION": {
+    "JOB_CHECK_TRIES": 50
+  },
+  "AUTH": {
+    "SESSION_SECRET": "SECRET",
+    "PASSWORD_HASH_ROUNDS": 10,
+    "UQSSO_SERVER_DOMAIN": "$ZONE_TAG.uqcloud.net",
+    "UQSSO_SERVER_PROTOCOL": "https"
+  },
+  "SESSION": {
+    "COLLECTION": "Session",
+    "EXPIRATION_TIME": 1209600
+  }
+}

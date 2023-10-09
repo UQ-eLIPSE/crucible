@@ -1,0 +1,26 @@
+{
+	"transform": {
+		"^.+\\.(ts|tsx|js|json)?$": [
+			"ts-jest",
+			{
+				"tsconfig": "tsconfig.json",
+				"useESM": true,
+				"diagnostics": true
+			}
+		]
+	},
+	"testRegex": "(<rootDir>/tests/.*|\\.(test))\\.(ts|tsx|js)$",
+  	"moduleFileExtensions": ["ts", "tsx", "js", "json"],
+	"moduleDirectories": ["node_modules", "<rootDir>"],
+	"modulePaths": ["node_modules", "<rootDir>"],
+	"extensionsToTreatAsEsm": [".ts", ".json"],
+	"transformIgnorePatterns": [],
+	"moduleNameMapper": {
+		"^@/(.*)$": "<rootDir>/src/$1"
+	},
+	"roots": [
+		"<rootDir>"
+	],
+	"testEnvironment": "node",
+	"testPathIgnorePatterns": ["<rootDir>/cypress", "<rootDir>/node_modules", "<rootDir>/dist"]
+}

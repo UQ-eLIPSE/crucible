@@ -1,0 +1,15 @@
+{
+	"BRANDING": {
+		"APP_NAME": "Fluid Dynamics",
+		"HEADER_TEXT": "Fluid Dynamics for Mechanical Engineers",
+		"NUM_SPLASH_IMAGES": 1
+	},
+	"QUIZ": {
+		"ENABLE_INTERMEDIATE_PAGE": true
+	},
+	"API_URL": "http://localhost:8080",
+	"USER": {
+		"USERNAME": "",
+		"PASSWORD": ""
+	}
+}

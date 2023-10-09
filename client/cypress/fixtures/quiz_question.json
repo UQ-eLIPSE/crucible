@@ -1,0 +1,50 @@
+{
+    "tags": [],
+    "label": "Question 1",
+    "type": 101,
+    "permissions": {
+        "auth": {
+            "uqsso": {
+                "basic": false,
+                "staffOnly": false
+            },
+            "internal": {
+                "hidden": false
+            }
+        }
+    },
+    "content": {
+        "type": 0,
+        "statement": "<p>Question 1 problem</p>",
+        "optionsList": [
+            {
+                "type": 1,
+                "optionValue": "<p>Option 1</p>",
+                "optionCorrect": false,
+                "currentState": ""
+            },
+            {
+                "type": 1,
+                "optionValue": "<p>Option 2</p>",
+                "optionCorrect": false,
+                "currentState": ""
+            }
+        ],
+        "hint": "<p>Solution&nbsp;</p>",
+        "currentState": {
+            "alreadySelectedOptions": [],
+            "correctAnswerFound": false
+        },
+        "additionalHints": [
+            {
+                "type": 7,
+                "content": "<p>Hint for quiz</p>"
+            }
+        ],
+        "additionalInformation": "<p>Additional Information</p>"
+      },
+    "thumbnail": {
+        "url": "https://stluc.manta.uqcloud.net/elipse/public/CHUBS/vets/thumbnail/6204e8d964c71f1df2110cad.png",
+        "size": "cover"
+    }
+}

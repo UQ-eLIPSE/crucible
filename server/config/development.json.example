@@ -1,0 +1,39 @@
+{
+    "DATABASE": {
+        "URI": "mongodb://mongodb:27017/takarabako"
+    },
+    "SERVER": {
+        "PORT": 8080
+    },
+    "CLIENT": {
+        "ADDRESS": "http://localhost:5173"
+    },
+    "MANTA": {
+        "ENABLED": false,
+        "HOST_URL": "https://manta.your.server.net",
+        "HOST_FOLDER": "/public/some/folder",
+        "UPLOAD_SUBFOLDER": {
+            "CONTENT": "content",
+            "THUMBNAIL": "thumbnail",
+            "EDITOR_IMAGES": "editor-images"
+        },
+        "KEY_PATH": "/root/.ssh/file",
+        "KEY_ID": "00:11:22:33:44:55:66:77:88:99:aa:bb:cc:dd:ee:ff",
+        "USER": "username",
+        "SUBUSER": null,
+        "ROLES": []
+    },
+    "MANTA_OPERATION": {
+        "JOB_CHECK_TRIES": 50
+    },
+    "AUTH": {
+        "SESSION_SECRET": "SECRET",
+        "PASSWORD_HASH_ROUNDS": 10,
+        "UQSSO_SERVER_DOMAIN": "crucible.uqcloud.net",
+        "UQSSO_SERVER_PROTOCOL": "https"
+    },
+    "SESSION": {
+        "COLLECTION": "Session",
+        "EXPIRATION_TIME": 1209600
+    }
+}

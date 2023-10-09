@@ -1,0 +1,86 @@
+.resource-editor {
+	display: flex;
+	width: 100%;
+}
+
+.resource-display {
+	flex-shrink: 0;
+
+	/* Gives enough room for 2 columns on the left */
+	width: calc(100% - 46.2rem);
+}
+
+.content-wrapper {
+	flex-grow: 1;
+	overflow-y: auto;
+}
+
+.content-area {
+	flex-grow: 1;
+	padding: 2rem;
+	overflow-y: auto;
+}
+
+.content-area > h1:first-child {
+	margin-top: 0;
+}
+
+.property-list {
+	width: 100%;
+	list-style-type: none;
+	padding: 0;
+}
+
+.message {
+	padding: 0.5rem;
+}
+
+.success {
+	background-color: #dff0d8;
+	border: 1px solid #d0e9c6;
+	color: #3c763d;
+}
+
+.error {
+	background-color: #f2dede;
+	border: 1px solid #ebcccc;
+	color: #a94442;
+}
+
+.delete-button {
+	color: #a94442;
+	background-color: white;
+}
+
+.delete-button:active,
+.delete-button:hover {
+	background-color: #f2dede;
+}
+
+.save-bar {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.save-bar > button {
+	margin-left: 1rem;
+}
+
+.breadcrumbs {
+	background-color: white;
+}
+
+.indented {
+	margin: 0.5rem 1.3rem;
+}
+
+.indented::before {
+	content: "-";
+	font-size: 1.2em;
+	font-weight: bold;
+	color: rgba(1, 0, 0, 0.5);
+}
+
+.info {
+	color: #17a2b8;
+}

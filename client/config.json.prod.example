@@ -1,0 +1,11 @@
+{
+	"BRANDING": {
+		"APP_NAME": "$APP_NAME",
+		"HEADER_TEXT": "$HEADER_TEXT",
+		"NUM_SPLASH_IMAGES": 1
+	},
+	"QUIZ": {
+		"ENABLE_INTERMEDIATE_PAGE": true
+	},
+	"API_URL": "$ZONE_URL"
+}

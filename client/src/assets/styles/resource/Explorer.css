@@ -1,0 +1,275 @@
+.resource-explorer {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: flex-start;
+	align-content: flex-start;
+
+	padding: 1.5rem;
+	margin: 0;
+
+	overflow-y: auto;
+}
+
+.list-item {
+	display: block;
+	margin: 0.5rem;
+}
+
+.list-item-link {
+	display: block;
+	position: relative;
+
+	/* 16:9 thumbnail standard ratio */
+	width: 19.2em;
+	height: 10.8em;
+
+	color: #fff;
+	text-decoration: none;
+	outline: 0.2rem solid rgba(0, 0, 0, 0.1);
+}
+
+.overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+}
+
+.background {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	background-color: #49075e;
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center center;
+	transition: background-color 200ms linear;
+}
+
+.overlay-label {
+	background-color: rgba(0, 0, 0, 0.7);
+	color: #fff;
+	padding: 0.5rem 0.7rem;
+
+	transition: background-color 200ms linear;
+}
+
+.list-item-link:active,
+.list-item-link:focus {
+	outline-color: #162a9b;
+}
+
+.list-item-link:hover .background {
+	background-color: #350635;
+}
+
+.list-item-link.active-child-item {
+	outline-color: #bda14e;
+}
+
+.list-item-link.active-child-item .background {
+	background-color: #8e0eb9;
+}
+
+.list-item-link:hover .overlay-label {
+	background: rgba(0, 0, 0, 0.9);
+}
+
+.edit-controls {
+	display: inline-block;
+	background: rgba(255, 255, 255, 0.5);
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 0;
+	margin: 0;
+	color: #000;
+	z-index: 999;
+}
+
+.edit-controls > li {
+	display: inline-block;
+	padding: 0.5rem;
+}
+
+.edit-controls > li:nth-child(n + 2) {
+	border-left: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.edit-controls > li > a {
+	display: inline-block;
+	text-decoration: none;
+}
+
+.resource-explorer.linear-list {
+	display: block;
+}
+
+.resource-explorer.linear-list .list-item-link {
+	width: auto;
+	height: 3.6rem;
+
+	background-position: 0;
+
+	display: flex;
+	flex-direction: row-reverse;
+	align-items: stretch;
+}
+
+.resource-explorer.linear-list .background,
+.resource-explorer.linear-list .overlay {
+	position: static;
+}
+
+.resource-explorer.linear-list .background {
+	width: 0;
+}
+
+.resource-explorer.linear-list .background.background-image-defined {
+	width: 6.4rem;
+}
+
+.resource-explorer.linear-list .overlay {
+	flex-grow: 1;
+
+	flex-direction: row;
+	align-items: stretch;
+	justify-content: flex-start;
+}
+
+.resource-explorer.linear-list .background,
+.resource-explorer.linear-list .overlay-label {
+	background-color: #49075e;
+}
+
+.resource-explorer.linear-list .overlay-label {
+	flex-grow: 1;
+
+	padding: 0.25rem 0.5rem;
+
+	display: inline-flex;
+	align-items: center;
+}
+
+.resource-explorer.linear-list .list-item-link:hover .background,
+.resource-explorer.linear-list .list-item-link:hover .overlay-label {
+	background-color: #350635;
+}
+
+.resource-explorer.linear-list .list-item-link.active-child-item .background,
+.resource-explorer.linear-list
+	.list-item-link.active-child-item
+	.overlay-label {
+	background-color: #bda14e;
+	color: #000;
+	font-weight: bold;
+}
+
+.inline-document {
+	display: flex;
+	flex-direction: column;
+	flex-basis: 100%;
+	margin: 0.5rem;
+}
+
+.inline-document.hidden {
+	border: 0.1rem dashed rgba(1, 0, 0, 0.3);
+}
+
+.inline-document .row {
+	align-self: flex-end;
+}
+
+.row {
+	display: flex;
+}
+
+.row button,
+.row a {
+	margin-left: 0.2rem;
+	text-decoration: none;
+}
+
+/* Mobile Styles */
+
+.viewport-mobile .inline-document {
+	flex-wrap: wrap-reverse;
+	margin: 0rem;
+}
+
+.viewport-mobile ul {
+	padding: 0;
+}
+
+.viewport-mobile .list-item {
+	margin: 0.5rem 0rem 0.5rem;
+}
+
+.viewport-mobile .list-item-link {
+	width: 18em;
+	height: 9em;
+}
+
+.viewport-mobile .resource-explorer {
+	padding: 0.7rem 1rem 0.7rem;
+	font-size: 0.9em;
+}
+
+/* Tablet Styles */
+
+.viewport-tablet .inline-document {
+	flex-wrap: wrap-reverse;
+}
+
+.viewport-tablet .resource-explorer {
+	padding: 0.7rem 1rem 0.7rem;
+}
+
+.hidden {
+	border: 0.1rem dashed rgba(1, 0, 0, 0.3);
+}
+
+.hidden-label {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	outline: 0.1rem solid rgba(189, 161, 78, 0.2);
+	margin-right: 0.2rem;
+}
+
+.hidden-label::before {
+	content: "HIDDEN";
+	position: absolute;
+	color: black;
+	font-size: 0.75em;
+	font-weight: bold;
+	background-color: #f8d7da;
+	color: #bf303e;
+	left: 0;
+	padding: 0 0.2rem;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.inline-hidden {
+	color: black;
+	font-size: 0.75em;
+	font-weight: bold;
+	background-color: #f8d7da;
+	color: #bf303e;
+	padding: 0 0.2rem;
+	display: flex;
+	align-items: center;
+	border: 0.1em solid #bf303e;
+	border-radius: 2px;
+}

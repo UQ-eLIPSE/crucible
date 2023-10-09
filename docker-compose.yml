@@ -1,0 +1,47 @@
+version: '3.7'
+services:
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: client-app
+    volumes:
+      - ./client:/var/www/crucible/client
+    expose:
+      - '5173'
+    ports:
+      - '5173:5173'
+    networks:
+      - network
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    volumes:
+      - ./server:/var/www/crucible/server
+    expose:
+      - '8080'
+    ports:
+      - '8080:8080'
+    networks:
+      - network
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongo-db
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    ports:
+      - '27017:27017'
+    expose:
+      - '27017'
+    networks:
+      - network
+    logging:
+      driver: none
+networks:
+  network:
+    driver: bridge

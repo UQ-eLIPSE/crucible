@@ -1,0 +1,10 @@
+{
+	"extends": "./tsconfig.app.json",
+	"include": [
+		"cypress/support/component.*",
+		"cypress/support/commands.ts"
+	],
+	"compilerOptions": {
+		"composite": true
+	}
+}

@@ -1,0 +1,15 @@
+.inline-message-box {
+	display: block;
+	padding: 1rem;
+	border: 1px solid;
+}
+
+.inline-message-box.positive {
+	color: #060;
+	background: #dfd;
+}
+
+.inline-message-box.negative {
+	color: #900;
+	background: #fcc;
+}

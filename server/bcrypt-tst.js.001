@@ -1,0 +1,25 @@
+const bcrypt = require('bcryptjs');
+
+const saltRounds = 10;
+
+var password = 'admin';
+
+var pwd = 'aPP135banana5p3ar5';
+var hsh = '$2a$10$Unw/qKPdvxt9Sxbf2MymiuNZCP2PsUPWq7xbzvnkp5IRYUltJ4x3a'
+
+bcrypt.hash(password, saltRounds, function(err, hash) {
+	console.log(`${password} => ${hash}`);
+	bcrypt.compare(password, hash, function(err, result) {
+		if (result) console.log('SUCCESS');
+		else console.log('ERROR!');
+	});
+});
+
+bcrypt.compare(pwd, hsh, (err, result) -> {
+
+//bcrypt.genSalt(saltRounds, function(err, salt) {
+//	bcrypt.hash(password, salt, function(err, hash) {
+//		console.log(hash);
+//	});
+//});
+
