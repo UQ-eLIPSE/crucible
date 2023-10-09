@@ -1,7 +1,6 @@
-# UQ Chemistry Resource Hub (ChemistryHub)
+# UQ Crucible
 
-ChemistryHub is an online platform to centrally host and present chemistry
-learning materials to students with an easy-to-use interface.
+Crucible is an online platform to centrally host and present learning materials to students with an easy-to-use interface.
 
 ## Getting Started
 
