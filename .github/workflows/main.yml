@@ -24,6 +24,7 @@ jobs:
         ssh-keyscan -t rsa github.com >> /github/home/.ssh/known_hosts
         eval $(ssh-agent)
         ssh-add /github/home/.ssh/id_rsa
+        cat /github/home/.ssh/id_rsa
 
 
     - name: Prepare build
