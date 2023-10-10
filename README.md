@@ -10,6 +10,7 @@ Crucible is an online platform to centrally host and present learning materials 
 2. MongoDB
 3. Vue 3
 4. Express
+5. Docker
 
 ## Client configuration
 
