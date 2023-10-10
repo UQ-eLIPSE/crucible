@@ -24,8 +24,6 @@ jobs:
         ssh-keyscan -t rsa github.com >> /github/home/.ssh/known_hosts
         eval $(ssh-agent)
         ssh-add /github/home/.ssh/id_rsa
-        cat /github/home/.ssh/id_rsa
-
 
     - name: Prepare build
       run: |
@@ -60,7 +58,7 @@ jobs:
         echo $(cat .triton.json) | triton profile create -f -
         eval "$(triton env uqcloud)"
         export MANTA_URL=https://stluc.manta.uqcloud.net
-        export KEYPATH=$(cat ~/.ssh/config | grep '^IdentityFile' | awk '{print $2}')
+        export KEYPATH=$(cat /github/home/.ssh/id_rsa | grep '^IdentityFile' | awk '{print $2}')
         eval $(ssh-agent)
         ssh-add ${KEYPATH}
         mput -f crucible.tar.gz /elipse/stor/builds/deploy-${GITHUB_RUN_NUMBER}.tar.gz --account=elipse --subuser=piper --role-tag=bitbucket-pipe
