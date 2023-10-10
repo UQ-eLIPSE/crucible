@@ -1,0 +1,5 @@
+.vscode
+.idea
+/ChemistryHub
+server/output.csv
+server/output.json
