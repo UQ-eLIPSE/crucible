@@ -17,8 +17,8 @@ jobs:
 
     - name: Set up SSH
       run: |
-        mkdir -p /github/home/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > /github/home/.ssh/id_rsa
+        mkdir -p $HOME/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > $HOME/.ssh/id_rsa
         chmod 600 $HOME/.ssh/id_rsa
         echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > $HOME/.ssh/config
         ssh-keyscan -t rsa github.com >> $HOME/.ssh/known_hosts
