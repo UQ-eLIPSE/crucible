@@ -18,17 +18,12 @@ jobs:
     - name: Set up SSH
       run: |
         mkdir -p /github/home/.ssh
-        # echo "${{ secrets.SSH_PRIVATE_KEY }}" > /github/home/.ssh/id_rsa
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-        # chmod 600 /github/home/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        # echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > /github/home/.ssh/config
-        echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > ~/.ssh/id_rsa
-        # ssh-keyscan -t rsa github.com >> /github/home/.ssh/known_hosts
-        ssh-keyscan -t rsa github.com >> ~/.ssh/id_rsa
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > /github/home/.ssh/id_rsa
+        chmod 600 $HOME/.ssh/id_rsa
+        echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > $HOME/.ssh/config
+        ssh-keyscan -t rsa github.com >> $HOME/.ssh/known_hosts
         eval $(ssh-agent)
-        # ssh-add /github/home/.ssh/id_rsa
-        ssh-add ~/.ssh/id_rsa
+        ssh-add $HOME/.ssh/id_rsa
 
     - name: Prepare build
       run: |
@@ -63,7 +58,7 @@ jobs:
         echo $(cat .triton.json) | triton profile create -f -
         eval "$(triton env uqcloud)"
         export MANTA_URL=https://stluc.manta.uqcloud.net
-        export KEYPATH=$(cat ~/.ssh/id_rsa | grep '^IdentityFile' | awk '{print $2}')
+        export KEYPATH=$(cat $HOME/.ssh/id_rsa | grep '^IdentityFile' | awk '{print $2}')
         eval $(ssh-agent)
         ssh-add ${KEYPATH}
         mput -f crucible.tar.gz /elipse/stor/builds/deploy-${GITHUB_RUN_NUMBER}.tar.gz --account=elipse --subuser=piper --role-tag=bitbucket-pipe
