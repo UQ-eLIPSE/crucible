@@ -63,7 +63,7 @@ jobs:
         ssh-add ${KEYPATH}
         mput -f crucible.tar.gz /elipse/stor/builds/deploy-${GITHUB_RUN_NUMBER}.tar.gz --account=elipse --subuser=piper --role-tag=bitbucket-pipe
         export TARBALL="$(msign /elipse/stor/builds/deploy-${GITHUB_RUN_NUMBER}.tar.gz)"
-        triton --act-as=elipse inst exec $ZONE_NAME -- /bin/sh -c "cd /opt/ && rm -rf tmp && mkdir tmp/ &&
+        triton --act-as=elipse inst exec ${{ variables.ZONE_NAME }} -- /bin/sh -c "cd /opt/ && rm -rf tmp && mkdir tmp/ &&
           curl \"${TARBALL}\" | tar -C tmp/ -zxvf - &&
           rm -rf /opt/server && cp -R /opt/tmp/tmp/server /opt && rm -rf /var/www/client && cp -R /opt/tmp/tmp/client /var/www/ &&
           systemctl restart crucible"
