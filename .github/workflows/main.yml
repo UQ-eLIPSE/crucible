@@ -17,13 +17,13 @@ jobs:
 
     - name: Set up SSH
       run: |
-        mkdir -p /root/.ssh
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > /root/.ssh/id_rsa
-        chmod 600 /root/.ssh/id_rsa
-        echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > /root/.ssh/config
-        ssh-keyscan -t rsa github.com >> /root/.ssh/known_hosts
+        mkdir -p /github/home/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > /github/home/.ssh/id_rsa
+        chmod 600 /github/home/.ssh/id_rsa
+        echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > /github/home/.ssh/config
+        ssh-keyscan -t rsa github.com >> /github/home/.ssh/known_hosts
         eval $(ssh-agent)
-        ssh-add /root/.ssh/id_rsa
+        ssh-add /github/home/.ssh/id_rsa
 
     - name: Prepare build
       run: |
@@ -58,7 +58,7 @@ jobs:
         echo $(cat .triton.json) | triton profile create -f -
         eval "$(triton env uqcloud)"
         export MANTA_URL=https://stluc.manta.uqcloud.net
-        export KEYPATH=$(cat /root/.ssh/id_rsa | grep '^IdentityFile' | awk '{print $2}')
+        export KEYPATH=$(cat /github/home/.ssh/id_rsa | grep '^IdentityFile' | awk '{print $2}')
         eval $(ssh-agent)
         ssh-add ${KEYPATH}
         mput -f crucible.tar.gz /elipse/stor/builds/deploy-${GITHUB_RUN_NUMBER}.tar.gz --account=elipse --subuser=piper --role-tag=bitbucket-pipe
