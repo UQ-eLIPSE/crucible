@@ -59,7 +59,8 @@ jobs:
         export MANTA_URL=https://stluc.manta.uqcloud.net
         eval $(ssh-agent)
         ssh-add /github/home/.ssh/id_rsa
-        mput -f crucible.tar.gz /elipse/stor/builds/deploy-849479324.tar.gz -a elipse -u https://cloudapi.gps-1.uqcloud.net --subuser=piper -k 9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe
+        mv crucible.tar.gz deploy-849479324.tar.gz
+        mput -a elipse -u https://cloudapi.gps-1.uqcloud.net --subuser=piper -k 9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe -f deploy-849479324.tar.gz /elipse/stor/builds/
         export TARBALL="$(msign /elipse/stor/builds/deploy-849479324.tar.gz)"
         triton --act-as=elipse -a elipse -U https://cloudapi.gps-1.uqcloud.net -u piper -k 9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf inst exec (echo $ZONE_NAME) -- /bin/sh -c "cd /opt/ && rm -rf tmp && mkdir tmp/ &&
           curl \"${TARBALL}\" | tar -C tmp/ -zxvf - &&
