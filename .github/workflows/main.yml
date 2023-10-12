@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     container:
       image: node:16
 
@@ -61,9 +61,9 @@ jobs:
         export KEYPATH=$(cat /github/home/.ssh/id_rsa | grep '^IdentityFile' | awk '{print $2}')
         eval $(ssh-agent)
         ssh-add ${KEYPATH}
-        mput -f crucible.tar.gz /elipse/stor/builds/deploy-${GITHUB_RUN_NUMBER}.tar.gz -a elipse -U https://cloudapi.gps-1.uqcloud.net -u piper -k 9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe
+        mput -f crucible.tar.gz /elipse/stor/builds/deploy-${GITHUB_RUN_NUMBER}.tar.gz --account=elipse --subuser=piper --role-tag=bitbucket-pipe
         export TARBALL="$(msign /elipse/stor/builds/deploy-${GITHUB_RUN_NUMBER}.tar.gz)"
-        triton --act-as=elipse -a elipse -U https://cloudapi.gps-1.uqcloud.net -u piper -k 9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf inst exec (echo $ZONE_NAME) -- /bin/sh -c "cd /opt/ && rm -rf tmp && mkdir tmp/ &&
+        triton --act-as=elipse inst exec (echo $ZONE_NAME) -- /bin/sh -c "cd /opt/ && rm -rf tmp && mkdir tmp/ &&
           curl \"${TARBALL}\" | tar -C tmp/ -zxvf - &&
           rm -rf /opt/server && cp -R /opt/tmp/tmp/server /opt && rm -rf /var/www/client && cp -R /opt/tmp/tmp/client /var/www/ &&
           systemctl restart crucible"
