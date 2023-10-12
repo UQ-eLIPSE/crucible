@@ -57,7 +57,7 @@ jobs:
         npm install -g manta
         triton profile create -f .triton.json || true
         export MANTA_URL=https://stluc.manta.uqcloud.net
-        export KEYPATH=$(cat /github/home/.ssh/id_rsa | grep '^IdentityFile' | awk '{print $2}') || true
+        # export KEYPATH=$(cat /github/home/.ssh/id_rsa | grep '^IdentityFile' | awk '{print $2}') || true
         eval $(ssh-agent)
         ssh-add $(cat /github/home/.ssh/id_rsa | grep '^IdentityFile' | awk '{print $2}')
         mput -f crucible.tar.gz /elipse/stor/builds/deploy-${GITHUB_RUN_NUMBER}.tar.gz -a elipse -u https://cloudapi.gps-1.uqcloud.net --subuser=piper -k 9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe
