@@ -55,7 +55,7 @@ jobs:
       run: |
         npm install -g git+https://github.com/eait-itig/node-triton#eait
         npm install -g manta
-        echo $(cat .triton.json) | triton profile create -f .triton.json || true
+        triton profile create -f .triton.json || true
         export MANTA_URL=https://stluc.manta.uqcloud.net
         export KEYPATH=$(cat /github/home/.ssh/id_rsa | grep '^IdentityFile' | awk '{print $2}')
         eval $(ssh-agent)
