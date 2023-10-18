@@ -38,7 +38,7 @@ jobs:
 
       - name: Prepare build and Deploy
         run: |
-          SERVERS=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r 'keys[]')
+          SERVERS=$(echo '${{ vars.PROD_VARS }}' | jq -r 'keys[]')
           for SERVER in $SERVERS; do
             API_URL=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.API_URL')
             APP_NAME=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.APP_NAME')
