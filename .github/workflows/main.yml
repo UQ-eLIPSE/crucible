@@ -40,17 +40,17 @@ jobs:
         run: |
           SERVERS=$(echo '${{ vars.PROD_VARS }}' | jq -r 'keys[]')
           for SERVER in $SERVERS; do
-            API_URL=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.API_URL')
-            APP_NAME=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.APP_NAME')
-            HEADER_TEXT=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.HEADER_TEXT')
-            MANTA_FOLDER=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_FOLDER')
-            MANTA_HOST=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_HOST')
-            MANTA_SUBUSER=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_SUBUSER')
-            MANTA_USER=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_USER')
-            ZONE_NAME=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.ZONE_NAME')
-            ZONE_TAG=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.ZONE_TAG')
-            MANTA_KEY_ID=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_KEY_ID')
-            MANTA_KEY_LOCATION=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_KEY_LOCATION')
+            API_URL=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.API_URL')
+            APP_NAME=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.APP_NAME')
+            HEADER_TEXT=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.HEADER_TEXT')
+            MANTA_FOLDER=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_FOLDER')
+            MANTA_HOST=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_HOST')
+            MANTA_SUBUSER=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_SUBUSER')
+            MANTA_USER=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_USER')
+            ZONE_NAME=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.ZONE_NAME')
+            ZONE_TAG=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.ZONE_TAG')
+            MANTA_KEY_ID=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_KEY_ID')
+            MANTA_KEY_LOCATION=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_KEY_LOCATION')
 
             apt-get update && apt-get install gettext-base
             mkdir tmp
