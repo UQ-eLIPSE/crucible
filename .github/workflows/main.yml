@@ -25,7 +25,10 @@ jobs:
           ssh-add /github/home/.ssh/id_rsa
 
       - name: Install jq (for JSON parsing)
-        run: apt-get install jq
+        run: |
+          wget -O jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+          chmod +x ./jq
+          sudo mv jq /usr/local/bin
 
       - name: Decode and Parse JSON Secret
         id: parse_json
