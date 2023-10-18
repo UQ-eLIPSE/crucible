@@ -1,22 +1,8 @@
 name: CI/CD Pipeline
-
-env:
-  API_URL: ${{vars.API_URL}}
-  APP_NAME: ${{vars.APP_NAME}}
-  HEADER_TEXT: ${{vars.HEADER_TEXT}}
-  MANTA_FOLDER: ${{vars.MANTA_FOLDER}}
-  MANTA_HOST: ${{vars.MANTA_HOST}}
-  MANTA_SUBUSER: ${{vars.MANTA_SUBUSER}}
-  MANTA_USER: ${{vars.MANTA_USER}}
-  ZONE_NAME: ${{vars.ZONE_NAME}}
-  ZONE_TAG: ${{vars.ZONE_TAG}}
-  MANTA_KEY_ID: ${{secrets.MANTA_KEY_ID}}
-  MANTA_KEY_LOCATION: ${{secrets.MANTA_KEY_LOCATION}}
-
 on:
   push:
     branches:
-      - develop
+      - main
 
 jobs:
   build-and-deploy:
@@ -38,44 +24,60 @@ jobs:
           eval $(ssh-agent)
           ssh-add /github/home/.ssh/id_rsa
 
-      - name: Prepare build
-        run: |
-          apt-get update && apt-get install gettext-base
-          mkdir tmp
-          mkdir tmp/server && mkdir tmp/client
-          cd server
-          yarn
-          cd config
-          cat production.config.ci | envsubst > production.json
-          cd ../
-          yarn build
-          cp -R dist/ node_modules/ config/ package.json ../tmp/server
-          cd ../client
-          cat config.json.prod.example | envsubst > config.json
-          yarn
-          yarn build
-          cp -R node_modules/ config.json dist/
-          cp -R dist/ ../tmp/client
-          cd ../ && tar -czvf crucible.tar.gz tmp/
+      - name: Install jq (for JSON parsing)
+        run: sudo apt-get install jq
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: crucible.tar.gz
-          path: crucible.tar.gz
-
-      - name: Deploy to zone
+      - name: Decode and Parse JSON Secret
+        id: parse_json
         run: |
-          npm install -g git+https://github.com/eait-itig/node-triton#eait
-          npm install -g manta
-          triton profile create -f .triton.json || true
-          export MANTA_URL=https://stluc.manta.uqcloud.net
-          eval $(ssh-agent)
-          ssh-add /github/home/.ssh/id_rsa
-          mv crucible.tar.gz deploy-${{github.run_number}}.tar.gz
-          mput --account=elipse --subuser=piper --keyId=9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe -f deploy-${{github.run_number}}.tar.gz /elipse/stor/builds/
-          export TARBALL="$(msign --account=elipse --subuser=piper --keyId=9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe /elipse/stor/builds/deploy-${{github.run_number}}.tar.gz)"
-          triton --act-as=elipse -a elipse -U https://cloudapi.gps-1.uqcloud.net -u piper -k 9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf inst exec $ZONE_NAME -- /bin/sh -c "cd /opt/ && rm -rf tmp && mkdir tmp/ &&
-                curl \"${TARBALL}\" | tar -C tmp/ -zxvf - &&
-                rm -rf /opt/server && cp -R /opt/tmp/tmp/server /opt && rm -rf /var/www/client && cp -R /opt/tmp/tmp/client /var/www/ &&
-                systemctl restart crucible"
+          echo "::set-output name=config::$(echo '${{ vars.PROD_VARS }}' | jq .)"
+        shell: bash
+
+      - name: Prepare build and Deploy
+        run: |
+          SERVERS=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r 'keys[]')
+          for SERVER in $SERVERS; do
+            API_URL=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.API_URL')
+            APP_NAME=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.APP_NAME')
+            HEADER_TEXT=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.HEADER_TEXT')
+            MANTA_FOLDER=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_FOLDER')
+            MANTA_HOST=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_HOST')
+            MANTA_SUBUSER=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_SUBUSER')
+            MANTA_USER=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_USER')
+            ZONE_NAME=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.ZONE_NAME')
+            ZONE_TAG=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.ZONE_TAG')
+            MANTA_KEY_ID=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_KEY_ID')
+            MANTA_KEY_LOCATION=$(echo '${{ steps.parse_json.outputs.config }}' | jq -r --arg SERVER "$SERVER" '.$SERVER.MANTA_KEY_LOCATION')
+
+            apt-get update && apt-get install gettext-base
+            mkdir tmp
+            mkdir tmp/server && mkdir tmp/client
+            cd server
+            yarn
+            cd config
+            cat production.config.ci | envsubst > production.json
+            cd ../
+            yarn build
+            cp -R dist/ node_modules/ config/ package.json ../tmp/server
+            cd ../client
+            cat config.json.prod.example | envsubst > config.json
+            yarn
+            yarn build
+            cp -R node_modules/ config.json dist/
+            cp -R dist/ ../tmp/client
+            cd ../ && tar -czvf $SERVER-crucible.tar.gz tmp/
+
+            npm install -g git+https://github.com/eait-itig/node-triton#eait
+            npm install -g manta
+            triton profile create -f .triton.json || true
+            export MANTA_URL=https://stluc.manta.uqcloud.net
+            eval $(ssh-agent)
+            ssh-add /github/home/.ssh/id_rsa
+            mv $SERVER-crucible.tar.gz deploy-$SERVER-${{github.run_number}}.tar.gz
+            mput --account=elipse --subuser=piper --keyId=9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe -f deploy-$SERVER-${{github.run_number}}.tar.gz /elipse/stor/builds/
+            export TARBALL="$(msign --account=elipse --subuser=piper --keyId=9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe /elipse/stor/builds/deploy-$SERVER-${{github.run_number}}.tar.gz)"
+            triton --act-as=elipse -a elipse -U https://cloudapi.gps-1.uqcloud.net -u piper -k 9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf inst exec $ZONE_NAME -- /bin/sh -c "cd /opt/ && rm -rf tmp && mkdir tmp/ &&
+                    curl \"${TARBALL}\" | tar -C tmp/ -zxvf - &&
+                    rm -rf /opt/server && cp -R /opt/tmp/tmp/server /opt && rm -rf /var/www/client && cp -R /opt/tmp/tmp/client /var/www/ &&
+                    systemctl restart crucible"
+          done
