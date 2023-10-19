@@ -38,6 +38,7 @@ jobs:
 
       - name: Prepare build and Deploy
         run: |
+          apt-get update && apt-get install gettext-base
           npm install -g git+https://github.com/eait-itig/node-triton#eait
           npm install -g manta
           triton profile create -f .triton.json || true
@@ -57,8 +58,7 @@ jobs:
             export ZONE_NAME=$(echo $SERVER_VARS | jq -r '.ZONE_NAME')
             export ZONE_TAG=$(echo $SERVER_VARS | jq -r '.ZONE_TAG')
             export MANTA_KEY_ID=$(echo $SERVER_VARS | jq -r '.MANTA_KEY_ID')
-            export MANTA_KEY_LOCATION=$(echo $SERVER_VARS | jq -r '.MANTA_KEY_LOCATION')
-            apt-get update && apt-get install gettext-base
+            export MANTA_KEY_LOCATION=$(echo $SERVER_VARS | jq -r '.MANTA_KEY_LOCATION')  
             mkdir tmp
             mkdir tmp/server && mkdir tmp/client
             cd server
@@ -77,7 +77,7 @@ jobs:
             cp -R dist/ ../tmp/client
             cd ../ && tar -czvf $SERVER-crucible.tar.gz tmp/
 
-
+            echo $ZONE_NAME
             mv $SERVER-crucible.tar.gz deploy-$SERVER-${{github.run_number}}.tar.gz
             mput --account=elipse --subuser=piper --keyId=9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe -f deploy-$SERVER-${{github.run_number}}.tar.gz /elipse/stor/builds/
             export TARBALL="$(msign --account=elipse --subuser=piper --keyId=9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe /elipse/stor/builds/deploy-$SERVER-${{github.run_number}}.tar.gz)"
