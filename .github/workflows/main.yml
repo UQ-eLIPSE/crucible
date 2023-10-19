@@ -64,6 +64,7 @@ jobs:
             cd ../
             yarn build
             cp -R dist/ node_modules/ config/ package.json ../tmp/server
+            cd ../client
             cat config.json.prod.example | envsubst > config.json
             yarn
             yarn build
