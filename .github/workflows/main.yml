@@ -38,20 +38,26 @@ jobs:
 
       - name: Prepare build and Deploy
         run: |
+          npm install -g git+https://github.com/eait-itig/node-triton#eait
+          npm install -g manta
+          triton profile create -f .triton.json || true
+          export MANTA_URL=https://stluc.manta.uqcloud.net
+          eval $(ssh-agent)
+          ssh-add /github/home/.ssh/id_rsa
           SERVERS=$(echo '${{ vars.PROD_VARS }}' | jq -r 'keys[]')
           for SERVER in $SERVERS; do
-            API_URL=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].API_URL')
-            APP_NAME=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].APP_NAME')
-            HEADER_TEXT=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].HEADER_TEXT')
-            MANTA_FOLDER=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].MANTA_FOLDER')
-            MANTA_HOST=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].MANTA_HOST')
-            MANTA_SUBUSER=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].MANTA_SUBUSER')
-            MANTA_USER=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].MANTA_USER')
-            ZONE_NAME=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].ZONE_NAME')
-            ZONE_TAG=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].ZONE_TAG')
-            MANTA_KEY_ID=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].MANTA_KEY_ID')
-            MANTA_KEY_LOCATION=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].MANTA_KEY_LOCATION')
-            echo $ZONE_NAME
+            SERVER_VARS=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER]')
+            API_URL=$(echo $SERVER_VARS | jq -r '.API_URL')
+            APP_NAME=$(echo $SERVER_VARS | jq -r '.APP_NAME')
+            HEADER_TEXT=$(echo $SERVER_VARS | jq -r '.HEADER_TEXT')
+            MANTA_FOLDER=$(echo $SERVER_VARS | jq -r '.MANTA_FOLDER')
+            MANTA_HOST=$(echo $SERVER_VARS | jq -r '.MANTA_HOST')
+            MANTA_SUBUSER=$(echo $SERVER_VARS | jq -r '.MANTA_SUBUSER')
+            MANTA_USER=$(echo $SERVER_VARS | jq -r '.MANTA_USER')
+            ZONE_NAME=$(echo $SERVER_VARS | jq -r '.ZONE_NAME')
+            ZONE_TAG=$(echo $SERVER_VARS | jq -r '.ZONE_TAG')
+            MANTA_KEY_ID=$(echo $SERVER_VARS | jq -r '.MANTA_KEY_ID')
+            MANTA_KEY_LOCATION=$(echo $SERVER_VARS | jq -r '.MANTA_KEY_LOCATION')
             apt-get update && apt-get install gettext-base
             mkdir tmp
             mkdir tmp/server && mkdir tmp/client
@@ -70,12 +76,7 @@ jobs:
             cp -R dist/ ../tmp/client
             cd ../ && tar -czvf $SERVER-crucible.tar.gz tmp/
 
-            npm install -g git+https://github.com/eait-itig/node-triton#eait
-            npm install -g manta
-            triton profile create -f .triton.json || true
-            export MANTA_URL=https://stluc.manta.uqcloud.net
-            eval $(ssh-agent)
-            ssh-add /github/home/.ssh/id_rsa
+
             mv $SERVER-crucible.tar.gz deploy-$SERVER-${{github.run_number}}.tar.gz
             mput --account=elipse --subuser=piper --keyId=9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe -f deploy-$SERVER-${{github.run_number}}.tar.gz /elipse/stor/builds/
             export TARBALL="$(msign --account=elipse --subuser=piper --keyId=9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe /elipse/stor/builds/deploy-$SERVER-${{github.run_number}}.tar.gz)"
