@@ -14,8 +14,25 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up SSH
+      # - name: Set up SSH
+      #   run: |
+      #     mkdir -p /github/home/.ssh
+      #     echo "${{ secrets.SSH_PRIVATE_KEY }}" > /github/home/.ssh/id_rsa
+      #     chmod 600 /github/home/.ssh/id_rsa
+      #     echo -e "Host github.com\n\tStrictHostKeyChecking no\n" > /github/home/.ssh/config
+      #     ssh-keyscan -t rsa github.com >> /github/home/.ssh/known_hosts
+      #     eval $(ssh-agent)
+      #     ssh-add /github/home/.ssh/id_rsa
+
+      - name: Install jq (for JSON parsing)
         run: |
+          wget -O jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+          chmod +x ./jq
+          mv jq /usr/local/bin
+
+      - name: Prepare build and Deploy
+        run: |
+          apt-get update && apt-get install gettext-base
           mkdir -p /github/home/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > /github/home/.ssh/id_rsa
           chmod 600 /github/home/.ssh/id_rsa
@@ -24,21 +41,6 @@ jobs:
           eval $(ssh-agent)
           ssh-add /github/home/.ssh/id_rsa
 
-      - name: Install jq (for JSON parsing)
-        run: |
-          wget -O jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-          chmod +x ./jq
-          mv jq /usr/local/bin
-
-      - name: Decode and Parse JSON Secret
-        id: parse_json
-        run: |
-          echo "::set-output name=config::$(echo '${{ vars.PROD_VARS }}' | jq .)"
-        shell: bash
-
-      - name: Prepare build and Deploy
-        run: |
-          apt-get update && apt-get install gettext-base
           npm install -g git+https://github.com/eait-itig/node-triton#eait
           npm install -g manta
           triton profile create -f .triton.json
