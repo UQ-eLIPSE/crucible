@@ -43,8 +43,10 @@ jobs:
           for SERVER in $SERVERS; do
             SERVER_VARS=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER]')
             export API_URL=$(echo $SERVER_VARS | jq -r '.API_URL')
-            export APP_NAME=$(echo $SERVER_VARS | jq -r '.APP_NAME' | tr -d ' ')
-            export HEADER_TEXT=$(echo $SERVER_VARS | jq -r '.HEADER_TEXT' | tr -d ' ')
+            IFS=
+            export APP_NAME=$(echo $SERVER_VARS | jq -r '.APP_NAME')
+            export HEADER_TEXT=$(echo $SERVER_VARS | jq -r '.HEADER_TEXT')
+            unset IFS
             export MANTA_FOLDER=$(echo $SERVER_VARS | jq -r '.MANTA_FOLDER')
             export MANTA_HOST=$(echo $SERVER_VARS | jq -r '.MANTA_HOST')
             export MANTA_SUBUSER=$(echo $SERVER_VARS | jq -r '.MANTA_SUBUSER')
