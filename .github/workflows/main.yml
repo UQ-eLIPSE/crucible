@@ -81,7 +81,7 @@ jobs:
             mv $SERVER-crucible.tar.gz deploy-$SERVER-${{github.run_number}}.tar.gz
             mput --account=elipse --subuser=piper --keyId=9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe -f deploy-$SERVER-${{github.run_number}}.tar.gz /elipse/stor/builds/
             export TARBALL="$(msign --account=elipse --subuser=piper --keyId=9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf --role-tag=bitbucket-pipe /elipse/stor/builds/deploy-$SERVER-${{github.run_number}}.tar.gz)"
-            triton --act-as=elipse --account=elipse --url=https://cloudapi.gps-1.uqcloud.net --subuser=piper --keyId=9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf inst exec $ZONE_NAME -- /bin/sh -c "cd /opt/ && rm -rf tmp && mkdir tmp/ &&
+            triton --act-as=elipse --account=elipse --url=https://cloudapi.gps-1.uqcloud.net --user=piper --keyId=9f:ba:e6:b5:7d:81:b6:2c:3c:df:03:6f:ad:92:35:cf inst exec $ZONE_NAME -- /bin/sh -c "cd /opt/ && rm -rf tmp && mkdir tmp/ &&
                     curl \"${TARBALL}\" | tar -C tmp/ -zxvf - &&
                     rm -rf /opt/server && cp -R /opt/tmp/tmp/server /opt && rm -rf /var/www/client && cp -R /opt/tmp/tmp/client /var/www/ &&
                     systemctl restart crucible"
