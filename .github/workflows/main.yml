@@ -51,7 +51,7 @@ jobs:
             ZONE_TAG=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].ZONE_TAG')
             MANTA_KEY_ID=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].MANTA_KEY_ID')
             MANTA_KEY_LOCATION=$(echo '${{ vars.PROD_VARS }}' | jq -r --arg SERVER "$SERVER" '.[$SERVER].MANTA_KEY_LOCATION')
-            echo ZONE_NAME
+            echo $ZONE_NAME
             apt-get update && apt-get install gettext-base
             mkdir tmp
             mkdir tmp/server && mkdir tmp/client
