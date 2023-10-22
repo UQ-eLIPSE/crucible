@@ -54,7 +54,8 @@ jobs:
             export ZONE_NAME=$(echo $SERVER_VARS | jq -r '.ZONE_NAME')
             export ZONE_TAG=$(echo $SERVER_VARS | jq -r '.ZONE_TAG')
             export MANTA_KEY_ID=$(echo $SERVER_VARS | jq -r '.MANTA_KEY_ID')
-            export MANTA_KEY_LOCATION=$(echo $SERVER_VARS | jq -r '.MANTA_KEY_LOCATION')  
+            export MANTA_KEY_LOCATION=$(echo $SERVER_VARS | jq -r '.MANTA_KEY_LOCATION')
+            rm -rf tmp  
             mkdir tmp
             mkdir tmp/server && mkdir tmp/client
             cd server
