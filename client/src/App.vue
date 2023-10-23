@@ -90,7 +90,6 @@ export default defineComponent({
 		return {
 			showClipboardInfo: false,
 			lastViewportInfoUpdateTimestamp: -1,
-			configData: Config,
 		};
 	},
 	mounted() {
@@ -102,6 +101,9 @@ export default defineComponent({
 		});
 	},
 	computed: {
+		configData() {
+    		return Config;
+  		}
 		clipboardItemExists() {
 			return this.$store.getters.clipboardItemExists;
 		},
