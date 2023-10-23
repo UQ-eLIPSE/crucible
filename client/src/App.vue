@@ -103,7 +103,7 @@ export default defineComponent({
 	computed: {
 		configData() {
     		return Config;
-  		}
+  		},
 		clipboardItemExists() {
 			return this.$store.getters.clipboardItemExists;
 		},
