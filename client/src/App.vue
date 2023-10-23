@@ -56,7 +56,7 @@
 					:href="
 						'https://api.uqcloud.net/login/' +
 						configData.API_URL +
-						'api/auth/login/sso'
+						'/api/auth/login/sso'
 					"
 					>Admin SSO</a
 				>
