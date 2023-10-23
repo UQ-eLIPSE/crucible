@@ -53,7 +53,11 @@
 				<a
 					v-if="!isSessionActive"
 					class="nav-item"
-					href="https://api.uqcloud.net/login/https://crucible-018.uqcloud.net/api/auth/login/sso"
+					:href="
+						'https://api.uqcloud.net/login/' +
+						configData.API_URL +
+						'/api/auth/login/sso'
+					"
 					>Admin SSO</a
 				>
 
@@ -86,6 +90,7 @@ export default defineComponent({
 		return {
 			showClipboardInfo: false,
 			lastViewportInfoUpdateTimestamp: -1,
+			configData: Config,
 		};
 	},
 	mounted() {
