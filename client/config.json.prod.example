@@ -7,5 +7,5 @@
 	"QUIZ": {
 		"ENABLE_INTERMEDIATE_PAGE": true
 	},
-	"API_URL": "$ZONE_URL"
+	"API_URL": "$API_URL"
 }
