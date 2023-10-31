@@ -1,3 +1,9 @@
+/**
+ * This is a Cypress test to test if a quiz exists.
+ * It will visit the root, click on the first collection, click on the first overlay,
+ * click on the second overlay, click on the third overlay, click on the fourth overlay, 
+ * and then check if the quiz components exist.
+ */
 describe('Quiz', () => {
     it('Should be able to display quiz components', () => {
         cy.visit('http://localhost:5173/')
