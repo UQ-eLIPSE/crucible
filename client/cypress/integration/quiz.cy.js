@@ -13,7 +13,7 @@ describe('Quiz', () => {
         cy.get('.overlay:first').click()
         cy.get('.overlay').eq(2).click()
         cy.get('.overlay:first').click()
-        cy,get('.mutiple-choice-question').should('exist')
+        cy.get('.mutiple-choice-question').should('exist')
         cy.get('.question-option').should('exist')
         cy.get('.attempt').should('exist')
     })
