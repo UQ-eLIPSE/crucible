@@ -92,6 +92,7 @@ import {
 } from "@/types/Resource";
 import { getUniqueId } from "@/utils/UniqueId";
 import { defineComponent, PropType } from "vue";
+import Config from "../../../../../config.json";
 
 export default defineComponent({
 	name: "QuizModule",
@@ -154,7 +155,7 @@ export default defineComponent({
 			// Set file picker callback
 			const options: any = { ...tinyMCEOptions };
 			options.file_picker_callback = this.tinyMceFilePicker;
-			options.images_upload_url = this.editorImageUploadApiPath;
+			options.images_upload_url = `${Config.API_URL}/${this.editorImageUploadApiPath}`;
 			options.automatic_uploads = true;
 			return options;
 		},

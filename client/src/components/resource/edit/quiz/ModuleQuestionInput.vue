@@ -29,6 +29,7 @@ import Tinymce from "@/components/Tinymce.vue";
 import { tinyMCEOptions } from "@/utils/TinyMce";
 import { QuestionInputText } from "@/types/Resource";
 import { getUniqueId } from "@/utils/UniqueId";
+import Config from "../../../../../config.json";
 
 export default defineComponent({
 	name: "ModuleQuestionInput",
@@ -67,7 +68,7 @@ export default defineComponent({
 		tinyMceOptions() {
 			const options: any = { ...tinyMCEOptions };
 			options.file_picker_callback = this.tinyMceFilePicker;
-			options.images_upload_url = this.editorImageUploadApiPath;
+			options.images_upload_url = `${Config.API_URL}/${this.editorImageUploadApiPath}`;
 			options.automatic_uploads = true;
 			options.force_br_newlines = false;
 			return options;
