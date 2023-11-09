@@ -35,6 +35,7 @@ import { getUniqueId } from "@/utils/UniqueId";
 import { QuestionOption } from "@/types/Resource";
 import { defineComponent } from "vue";
 import { PropType } from "vue";
+import Config from "../../../../../config.json";
 
 export default defineComponent({
 	name: "QuizOption",
@@ -77,7 +78,7 @@ export default defineComponent({
 		tinyMceOptions() {
 			const options: any = { ...tinyMCEOptions };
 			options.file_picker_callback = this.tinyMceFilePicker;
-			options.images_upload_url = this.editorImageUploadApiPath;
+			options.images_upload_url = `${Config.API_URL}/${this.editorImageUploadApiPath}`;
 			options.automatic_uploads = true;
 			options.force_br_newlines = false;
 			return options;

@@ -19,6 +19,7 @@ import Tinymce from "@/components/Tinymce.vue";
 import tinymce from "tinymce";
 import * as TinyMceUtils from "@/utils/TinyMce";
 import { getUniqueId } from "@/utils/UniqueId";
+import Config from "../../../../config.json";
 
 export default defineComponent({
 	name: "DocumentInternal",
@@ -66,7 +67,7 @@ export default defineComponent({
 			// Set file picker callback
 			const options: any = { ...TinyMceUtils.tinyMCEOptions };
 			options.file_picker_callback = this.tinyMceFilePicker;
-			options.images_upload_url = this.editorImageUploadApiPath;
+			options.images_upload_url = `${Config.API_URL}/${this.editorImageUploadApiPath}`;
 			options.automatic_uploads = false;
 			options.height = 400;
 			return options;
