@@ -1,0 +1,8 @@
+{
+  "deployedZones": [
+  { "url": "https://vetshub.uqcloud.net", "sso": false },
+  { "url": "https://agfshub.uqcloud.net", "sso": true },
+  { "url": "https://chemhub.uqcloud.net", "sso": true },
+  { "url": "https://chemenghub.uqcloud.net", "sso": true }
+  ]
+}
