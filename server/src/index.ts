@@ -13,8 +13,6 @@ import { setupSessionSerialisation, setupLocalStrategy } from "./auth";
 import { errorHandler } from "./middleware/error";
 import { getEnvironment, getConfig } from "./util/Config";
 import { Database } from "./database";
-import { convertQuiz } from "./util/ConvertQuizzes";
-import { addChildrenTags } from "./util/AddTags";
 
 async function main() {
 	// Get configuration and environment
@@ -93,11 +91,6 @@ async function main() {
 
 	// Listen
 	app.listen(config.SERVER.PORT);
-
-	// Convert any quizzes to new format
-	await convertQuiz();
-	// Apply test tags to resources
-	await addChildrenTags("Test");
 
 	console.info(`Ready and listening on port ${config.SERVER.PORT}`);
 }

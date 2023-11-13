@@ -13,7 +13,9 @@
 		"watch": "nodemon",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"pretty": "prettier --write ./src",
-		"lint": "eslint ./src --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+		"lint": "eslint ./src --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+		"convertQuiz": "ts-node src/util/QuizConversion.ts",
+		"docker:convertQuiz": "docker exec -it crucible_server_1 sh -c 'yarn convertQuiz'"
 	},
 	"author": "eLIPSE",
 	"license": "MIT",
