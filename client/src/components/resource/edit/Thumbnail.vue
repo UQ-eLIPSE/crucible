@@ -49,7 +49,7 @@
 					{{ thumbnailMessageOutput }}
 				</div>
 
-				<select v-model="thumbnailType">
+				<select v-model="thumbnailType" cy-data="thumbnail-select">
 					<option
 						disabled
 						value=""

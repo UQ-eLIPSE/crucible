@@ -36,4 +36,15 @@
 //   }
 // }
 
+Cypress.Commands.add('administratorLogin', () => {
+    cy.get('[cy-data="admin-button"]').click();
+    cy.get('[cy-data="username-field"]').type("admin");
+    cy.get('[cy-data="password-field"]').type("test1234")
+    cy.get('[cy-data="login-button"]').click();
+});
+
+Cypress.Commands.add('createResource', () => {
+    cy.get(".collection-roots > li:nth-child(1) > a:nth-child(1)").click();
+    cy.get("#container > div.top-bar > div.controls > a").click();
+})
 export {}

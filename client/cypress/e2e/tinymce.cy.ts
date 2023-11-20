@@ -1,27 +1,15 @@
 describe("Test upload images in TinyMCE", () => {
 	beforeEach(() => {
 		cy.visit("/");
-		cy.get("a.nav-item:nth-child(2)").click();
-		cy.get(
-			".input-fields > label:nth-child(1) > div:nth-child(2) > input:nth-child(1)"
-		).type("admin");
-		cy.get(
-			".input-fields > label:nth-child(2) > div:nth-child(2) > input:nth-child(1)"
-		)
-			.type("test1234")
-			.click();
-		cy.get(".button").click();
+		cy.administratorLogin();
 	});
 
 	it("Should be able to upload an image in a Quiz", () => {
-		cy.get(".collection-roots > li:nth-child(1) > a:nth-child(1)").click();
-		cy.get("#container > div.top-bar > div.controls > a").click();
+		cy.createResource();
 		cy.get(
-			"#container > div:nth-child(4) > div.resource-list > div > div:nth-child(1) > label > select"
-		).select("Quiz");
+			'[cy-data="resource-select"]').select("Quiz");
 		cy.get(
-			"#container > div:nth-child(4) > div.resource-list > div > div:nth-child(2) > label > input[type=text]"
-		).type("Test Quiz");
+			'[cy-data="title-field"]').type("Test Quiz");
 		cy.get(
 			"#container > div:nth-child(4) > div.resource-list > div > div:nth-child(4) > label > div > div > div > select"
 		).select("NO_THUMBNAIL");
@@ -45,14 +33,11 @@ describe("Test upload images in TinyMCE", () => {
 		).click();
 	});
 	it("Should be able to upload an image in a Note", () => {
-		cy.get(".collection-roots > li:nth-child(1) > a:nth-child(1)").click();
-		cy.get("#container > div.top-bar > div.controls > a").click();
+		cy.createResource();
 		cy.get(
-			"#container > div:nth-child(4) > div.resource-list > div > div:nth-child(1) > label > select"
-		).select("Note (Inline document)");
+			'[cy-data="resource-select"]').select("Note (Inline document)");
 		cy.get(
-			"#container > div:nth-child(4) > div.resource-list > div > div:nth-child(2) > label > input[type=text]"
-		).type("Test Note");
+			'[cy-data="title-field"]').type("Test Note");
 		cy.get(
 			"#container > div:nth-child(4) > div.resource-list > div > div:nth-child(4) > label > div > div > div > select"
 		).select("NO_THUMBNAIL");

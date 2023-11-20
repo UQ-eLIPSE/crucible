@@ -12,7 +12,7 @@
 		<div class="field">
 			<label>
 				<span class="field-label">Type</span>
-				<select v-model="resourceType">
+				<select v-model="resourceType" cy-data="resource-select">
 					<option
 						v-for="typeObj in resourceTypesMap"
 						:key="typeObj.resourceType"
@@ -36,6 +36,7 @@
 				<input
 					type="text"
 					v-model="resourceLabel"
+					cy-data="title-field"
 				/>
 			</label>
 		</div>

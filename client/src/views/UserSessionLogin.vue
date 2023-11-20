@@ -13,6 +13,7 @@
 							<input
 								type="text"
 								v-model="loginValue.username"
+								cy-data="username-field"
 								autofocus
 							/>
 						</div>
@@ -22,6 +23,7 @@
 						<div>
 							<input
 								type="password"
+								cy-data="password-field"
 								v-model="loginValue.password"
 							/>
 						</div>
@@ -31,6 +33,7 @@
 					type="submit"
 					class="button"
 					value="Log in"
+					cy-data="login-button"
 				/>
 			</form>
 			<div
