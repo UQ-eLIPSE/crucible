@@ -70,7 +70,6 @@ router
 	.post(
 		"/editorImages/*",
 		authenticateSSOUser,
-		checkUserSessionExists(),
 		multer({
 			storage: generateStorageEnginev3(objectStoreClient, fieldName),
 		}).single(EDITOR_IMAGE_FILE_FIELDNAME),

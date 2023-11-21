@@ -48,6 +48,7 @@
 					class="nav-item"
 					href="#/session/login"
 					@click.prevent="goToLogIn()"
+					cy-data="admin-button"
 					>Admin</a
 				>
 				<a
