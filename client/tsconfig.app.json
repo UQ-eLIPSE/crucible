@@ -6,6 +6,9 @@
 		"src/**/*.vue",
 		"src/typings/**/*.d.ts",
 	],
+	"exclude": [
+		"cypress/**/*"
+	],
 	"compilerOptions": {
 		"isolatedModules": false,
 		"forceConsistentCasingInFileNames": true,
