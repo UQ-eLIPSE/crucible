@@ -8,6 +8,7 @@
 					:multiple="multiple"
 					:accept="mimeType"
 					class="input"
+					cy-data="file-selector-input"
 					@change="onFileChange"
 				/>
 				<button

@@ -33,6 +33,7 @@
 				<input
 					type="text"
 					v-model="label"
+					cy-data="collection-title-field"
 				/>
 			</label>
 		</div>
