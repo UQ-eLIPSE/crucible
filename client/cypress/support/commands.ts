@@ -45,6 +45,6 @@ Cypress.Commands.add('administratorLogin', () => {
 
 Cypress.Commands.add('createResource', () => {
     cy.get(".collection-roots > li:nth-child(1) > a:nth-child(1)").click();
-    cy.get("#container > div.top-bar > div.controls > a").click();
+    cy.get('[cy-data="create-resource-button"]').click();
 })
 export {}

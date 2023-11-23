@@ -13,6 +13,7 @@
 					class="toggle-item"
 					:class="activeResourceClass"
 					@click.prevent="switchToResourceCreator"
+					cy-data="create-resource-button"
 				>
 					resource
 				</button>
@@ -21,6 +22,7 @@
 					class="toggle-item"
 					:class="activeCollectionClass"
 					@click.prevent="switchToCollectionCreator"
+					cy-data="create-collection-button"
 				>
 					collection
 				</button>
@@ -38,6 +40,7 @@
 				<h1>New Collection</h1>
 				<button
 					class="button"
+					cy-data="create-button"
 					@click.prevent="uploadCollection"
 				>
 					Create

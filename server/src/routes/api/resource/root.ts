@@ -12,6 +12,7 @@ import {
 	Type as ResourceType,
 	IResource_Collection,
 	IResource_Collection_Topic_Bundle,
+	IThumbnailData,
 } from "../../../types/resource";
 import {
 	prependPathToFieldname,
@@ -21,6 +22,7 @@ import {
 } from "../../../objectstore/Constants";
 import { convertTree } from "../../../util/GenerateCsv";
 import { getAllResources } from "../../../util/GetAllResource";
+import { getConfig } from "../../../util/Config";
 
 // =============================================================================
 
@@ -106,6 +108,10 @@ export const insertNew: express.RequestHandler = async (req, res, next) => {
 		req,
 		prependPathToFieldname(THUMBNAIL_FILE_FIELDNAME)
 	);
+
+	resource.thumbnail = {
+		url: `${getConfig().MANTA.HOST_URL + uploadThumbnailPath}`,
+	} as IThumbnailData
 
 	if (uploadContentPath !== undefined) {
 		// If there was content that was uploaded, check that the type of

@@ -14,6 +14,7 @@
 					"
 					@click.prevent.stop="createResource"
 					class="button"
+					cy-data="create-resource-button"
 					>Create New
 				</a>
 			</div>
