@@ -775,6 +775,19 @@ export default defineComponent({
 			}
 		},
 
+		cleanupResourceObject: (resourceObject: any) => {
+			for (const objKey in resourceObject) {
+				const value = resourceObject[objKey];
+				// Check if the value is null or an empty array
+				if (
+					value === null ||
+					(Array.isArray(value) && value.length === 0)
+				) {
+					delete resourceObject[objKey];
+				}
+			}
+		},
+
 		removeKeys(obj: any, keys: any) {
 			var index;
 			for (var prop in obj) {
@@ -816,6 +829,7 @@ export default defineComponent({
 			const updatedQuestions = await Promise.all(
 				updatedQuiz.content.questionList.map(async (question) => {
 					const formData = new FormData();
+					this.cleanupResourceObject(question);
 					formData.append("resource", JSON.stringify(question));
 					// Check if question already existed in quiz
 					const result =
