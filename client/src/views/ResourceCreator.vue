@@ -339,6 +339,18 @@ export default defineComponent({
 
 			return true;
 		},
+		cleanupResourceObject: (resourceObject: any) => {
+			for (const objKey in resourceObject) {
+				const value = resourceObject[objKey];
+				// Check if the value is null or an empty array
+				if (
+					value === null ||
+					(Array.isArray(value) && value.length === 0)
+				) {
+					delete resourceObject[objKey];
+				}
+			}
+		},
 
 		clearCollection() {
 			if (!confirm("Are you sure ? Collection data will be cleared")) {
@@ -706,6 +718,7 @@ export default defineComponent({
 		/** Sends patch request to API for parent resource (with modified children list)  */
 		async patchParent(parent: any) {
 			try {
+				this.cleanupResourceObject(parent);
 				return await Api.Resource.updateById(
 					this.activeCollection._id,
 					parent
