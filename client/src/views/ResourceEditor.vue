@@ -989,6 +989,8 @@ export default defineComponent({
 					}
 				}
 
+				this.cleanupResourceObject(resourceObject);
+
 				const result = await Api.Resource.updateById(
 					item._id,
 					resourceObject,
