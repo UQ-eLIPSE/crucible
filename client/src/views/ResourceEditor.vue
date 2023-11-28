@@ -962,6 +962,8 @@ export default defineComponent({
 					thumbnail: item.thumbnail,
 				};
 
+				this.cleanupResourceObject(resourceObject);
+
 				const formData = new FormData();
 
 				if (item.thumbnail === null) {
@@ -990,6 +992,8 @@ export default defineComponent({
 				}
 
 				this.cleanupResourceObject(resourceObject);
+
+				console.log(resourceObject);
 
 				const result = await Api.Resource.updateById(
 					item._id,
