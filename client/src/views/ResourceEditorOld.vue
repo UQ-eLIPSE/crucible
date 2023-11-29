@@ -55,7 +55,7 @@
 						</label>
 					</li>
 
-					<!-- <li class="field">
+					<li class="field">
 						<label>
 							<span class="field-label">Tags</span>
 							<input
@@ -64,10 +64,10 @@
 								placeholder="Enter comma separated tags..."
 							/>
 						</label>
-					</li> -->
+					</li>
 
 					<!-- Thumbnail edit component -->
-					<!-- <li class="field">
+					<li class="field">
 						<label>
 							<Thumbnail
 								v-if="resourceLoaded"
@@ -77,10 +77,10 @@
 								@thumbnailChanged="thumbnailHandler"
 							></Thumbnail>
 						</label>
-					</li> -->
+					</li>
 
 					<!-- Hide resource -->
-					<!-- <li class="field">
+					<li class="field">
 						<span class="field-label">Visibility</span>
 						<label>
 							<input
@@ -90,10 +90,10 @@
 							/>
 							<span>Hide resource</span>
 						</label>
-					</li> -->
+					</li>
 
 					<!-- SSO permissions switch -->
-					<!-- <li class="field">
+					<li class="field">
 						<span class="field-label">Permissions</span>
 						<label
 							class="info"
@@ -150,17 +150,17 @@
 							/>
 							<span>Only UQ Staff can view this resource</span>
 						</label>
-					</li> -->
-					<!-- <component
+					</li>
+					<component
 						:is="getResourceEditComponent(item.type)"
 						v-model:resource="item"
 						ref="edit-component"
 						:isEdit="true"
-					></component> -->
+					></component>
 				</ul>
 
 				<!-- Render ReorderResources if resource is a collection or topic bundle with atleast one child present -->
-				<!-- <ReorderResources
+				<ReorderResources
 					v-if="
 						isCollectionOrTopicBundle &&
 						childrenLoaded &&
@@ -168,17 +168,17 @@
 					"
 					:children="children"
 					@reordered="reorderHandler"
-				></ReorderResources> -->
+				></ReorderResources>
 			</div>
 		</div>
 		<!-- Show ResourceDisplay to preview content when *not* a collection or topic bundle -->
-		<!-- <ResourceDisplay
+		<ResourceDisplay
 			v-if="!isCollectionOrTopicBundle && resourceLoaded"
 			:showCloseButton="false"
 			:autoplay="false"
 			:item="item"
 			:isEditPreviewMode="true"
-		></ResourceDisplay> -->
+		></ResourceDisplay>
 	</div>
 </template>
 
@@ -314,7 +314,6 @@ export default defineComponent({
 
 				content: {},
 			} as IResource_FromServer,
-			resourceToChange: {} as IResource_FromServer,
 
 			/** Stores status types and css classes */
 			statusTypes: {
@@ -394,7 +393,7 @@ export default defineComponent({
 				return this.item.label;
 			},
 			set(val: string) {
-				this.resourceToChange.label = val.trim();
+				this.item.label = val.trim();
 			},
 		},
 
@@ -511,7 +510,7 @@ export default defineComponent({
 				return this.item.label;
 			},
 			set(label: string) {
-				this.resourceToChange.label = label;
+				this.item.label = label;
 				// Remove any message once someone attempts a change
 				this.clearResourceLabelMessage();
 			},
@@ -993,8 +992,6 @@ export default defineComponent({
 				}
 
 				this.cleanupResourceObject(resourceObject);
-
-				console.log(resourceObject)
 
 				const result = await Api.Resource.updateById(
 					item._id,
