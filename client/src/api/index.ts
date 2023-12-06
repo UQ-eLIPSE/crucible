@@ -335,12 +335,14 @@ namespace Api {
 			// internal to the client
 			cleanObjectOfUnderscoreProperties(resourceToUpload);
 
-			if (formData && formData.get("thumbnailUploadFile")) {
-				formData.append("resource", JSON.stringify(resourceToUpload));
-				return await put(appendUrl(PARENT, id), formData);
-			} else {
-				return await patch(appendUrl(PARENT, id), resourceToUpload);
-			}
+			console.log(resourceToUpload, formData);
+
+			// if (formData && formData.get("thumbnailUploadFile")) {
+			// 	formData.append("resource", JSON.stringify(resourceToUpload));
+			// 	return await put(appendUrl(PARENT, id), formData);
+			// } else {
+			// 	return await patch(appendUrl(PARENT, id), resourceToUpload);
+			// }
 		}
 
 		/**

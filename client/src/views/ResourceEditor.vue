@@ -55,7 +55,7 @@
 						</label>
 					</li>
 
-					<!-- <li class="field">
+					<li class="field">
 						<label>
 							<span class="field-label">Tags</span>
 							<input
@@ -64,10 +64,10 @@
 								placeholder="Enter comma separated tags..."
 							/>
 						</label>
-					</li> -->
+					</li>
 
 					<!-- Thumbnail edit component -->
-					<!-- <li class="field">
+					<li class="field">
 						<label>
 							<Thumbnail
 								v-if="resourceLoaded"
@@ -77,10 +77,10 @@
 								@thumbnailChanged="thumbnailHandler"
 							></Thumbnail>
 						</label>
-					</li> -->
+					</li>
 
 					<!-- Hide resource -->
-					<!-- <li class="field">
+					<li class="field">
 						<span class="field-label">Visibility</span>
 						<label>
 							<input
@@ -90,77 +90,13 @@
 							/>
 							<span>Hide resource</span>
 						</label>
-					</li> -->
+					</li>
 
 					<!-- SSO permissions switch -->
-					<!-- <li class="field">
-						<span class="field-label">Permissions</span>
-						<label
-							class="info"
-							v-if="
-								!isPermissionApplicable(
-									item,
-									authMechanism.uqsso
-								)
-							"
-						>
-							<em
-								>"{{
-									(
-										getTypeObjectByResourceType(
-											item.type
-										) || { label: "Current resource " }
-									).label
-								}}" type resource cannot be locked with UQ
-								SSO</em
-							>
-						</label>
-						<label
-							v-show="
-								isPermissionApplicable(
-									item,
-									authMechanism.uqsso
-								)
-							"
-						>
-							<input
-								type="checkbox"
-								v-model="resourcePermissionsUqsso"
-								class="standard-width"
-							/>
-							<span
-								>Enforce UQ SSO login to view this
-								resource</span
-							>
-						</label>
-						<label
-							class="indented"
-							v-show="
-								resourcePermissionsUqsso &&
-								isPermissionApplicable(
-									item,
-									authMechanism.uqsso
-								)
-							"
-						>
-							<input
-								type="checkbox"
-								v-model="resourcePermissionsUqssoStaffOnly"
-								class="standard-width"
-							/>
-							<span>Only UQ Staff can view this resource</span>
-						</label>
-					</li> -->
-					<!-- <component
-						:is="getResourceEditComponent(item.type)"
-						v-model:resource="item"
-						ref="edit-component"
-						:isEdit="true"
-					></component> -->
 				</ul>
 
 				<!-- Render ReorderResources if resource is a collection or topic bundle with atleast one child present -->
-				<!-- <ReorderResources
+				<ReorderResources
 					v-if="
 						isCollectionOrTopicBundle &&
 						childrenLoaded &&
@@ -168,17 +104,17 @@
 					"
 					:children="children"
 					@reordered="reorderHandler"
-				></ReorderResources> -->
+				></ReorderResources>
 			</div>
 		</div>
 		<!-- Show ResourceDisplay to preview content when *not* a collection or topic bundle -->
-		<!-- <ResourceDisplay
+		<ResourceDisplay
 			v-if="!isCollectionOrTopicBundle && resourceLoaded"
 			:showCloseButton="false"
 			:autoplay="false"
 			:item="item"
 			:isEditPreviewMode="true"
-		></ResourceDisplay> -->
+		></ResourceDisplay>
 	</div>
 </template>
 
@@ -314,7 +250,9 @@ export default defineComponent({
 
 				content: {},
 			} as IResource_FromServer,
-			resourceToChange: {} as IResource_FromServer,
+			resourceToChange: {
+				_id: "",
+			} as IResource_FromServer,
 
 			/** Stores status types and css classes */
 			statusTypes: {
@@ -403,7 +341,7 @@ export default defineComponent({
 				return this.item.tags.join(",");
 			},
 			set(text: string) {
-				this.item.tags = text.trim().split(",");
+				this.resourceToChange.tags = text.trim().split(",");
 			},
 		},
 
@@ -465,7 +403,7 @@ export default defineComponent({
 			set(staffOnly: boolean) {
 				// Cannot do anything if auth object not initialized
 				if (!this.uqssoAuthObject) return;
-				this.item.permissions.auth![AuthMechanism.uqsso]!["staffOnly"] =
+				this.resourceToChange.permissions.auth![AuthMechanism.uqsso]!["staffOnly"] =
 					staffOnly;
 			},
 		},
@@ -481,7 +419,7 @@ export default defineComponent({
 			set(hide: boolean) {
 				// Cannot do anything if auth object not initialized
 				if (!this.internalAuthObject) return;
-				this.item.permissions.auth![AuthMechanism.internal]!["hidden"] =
+				this.resourceToChange.permissions.auth![AuthMechanism.internal]!["hidden"] =
 					hide;
 			},
 		},
@@ -946,35 +884,41 @@ export default defineComponent({
 			}
 
 			try {
-				let item = JSON.parse(JSON.stringify(this.item));
-				if (this.item.thumbnail && this.item.thumbnail.file) {
+				let item = JSON.parse(JSON.stringify(this.resourceToChange));
+				if (this.resourceToChange.thumbnail && this.resourceToChange.thumbnail.file) {
 					item.thumbnail.file = new File(
-						[this.item.thumbnail.file],
-						this.item.thumbnail.file.name
+						[this.resourceToChange.thumbnail.file],
+						this.resourceToChange.thumbnail.file.name
 					);
 				}
 
-				const resourceObject: IResource_Base = {
-					type: item.type,
-					label: item.label,
-					tags: item.tags,
-					permissions: item.permissions,
-					content: item.content,
-					thumbnail: item.thumbnail,
-				};
+				// const resourceObject: IResource_Base = {
+				// 	type: item.type,
+				// 	label: item.label,
+				// 	tags: item.tags,
+				// 	permissions: item.permissions,
+				// 	content: item.content,
+				// 	thumbnail: item.thumbnail,
+				// };
 
-				this.cleanupResourceObject(resourceObject);
+				// const resourceObject2 = JSON.parse(JSON.stringify(this.resourceToChange));
+
+				// console.log(resourceObject2);
+
+				// const resourceObject: IResource_Base = this.resourceToChange;
+
+				this.cleanupResourceObject(item);
 
 				const formData = new FormData();
 
 				if (item.thumbnail === null) {
-					resourceObject.thumbnail = null;
+					item.thumbnail = null;
 				} else if (item.thumbnail) {
 					if (
 						item.thumbnail.url !== undefined &&
 						item.thumbnail.url !== null
 					) {
-						resourceObject.thumbnail = {
+						item.thumbnail = {
 							url: item.thumbnail.url,
 							size: "cover",
 						};
@@ -986,19 +930,19 @@ export default defineComponent({
 					} else if (
 						typeof item.thumbnail.timeToTakeFrame === "number"
 					) {
-						resourceObject.thumbnail = {
+						item.thumbnail = {
 							timeToTakeFrame: item.thumbnail.timeToTakeFrame,
 						};
 					}
 				}
 
-				this.cleanupResourceObject(resourceObject);
+				this.cleanupResourceObject(item);
 
-				console.log(resourceObject)
+				// console.log(item);
 
 				const result = await Api.Resource.updateById(
-					item._id,
-					resourceObject,
+					JSON.parse(JSON.stringify(this.item))._id,
+					item,
 					formData
 				);
 
