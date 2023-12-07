@@ -403,8 +403,9 @@ export default defineComponent({
 			set(staffOnly: boolean) {
 				// Cannot do anything if auth object not initialized
 				if (!this.uqssoAuthObject) return;
-				this.resourceToChange.permissions.auth![AuthMechanism.uqsso]!["staffOnly"] =
-					staffOnly;
+				this.item.permissions.auth![AuthMechanism.uqsso]![
+					"staffOnly"
+				] = staffOnly;
 			},
 		},
 
@@ -419,8 +420,9 @@ export default defineComponent({
 			set(hide: boolean) {
 				// Cannot do anything if auth object not initialized
 				if (!this.internalAuthObject) return;
-				this.resourceToChange.permissions.auth![AuthMechanism.internal]!["hidden"] =
-					hide;
+				this.item.permissions.auth![
+					AuthMechanism.internal
+				]!["hidden"] = hide;
 			},
 		},
 
@@ -868,72 +870,56 @@ export default defineComponent({
 
 		/** Prepares resource payload and makes API calls to save resource */
 		async saveResource() {
-			// Validate this component and child components
-			const successMessage: SuccessMessage = this.validate();
-
-			// Stop now if there are some validations which failed
-			if (successMessage.success === false) {
-				return;
-			}
-
-			const uploadHookMessage: SuccessMessage =
-				await this.preUploadHook();
-			// Stop now if there are some hooks that failed
-			if (uploadHookMessage.success === false) {
-				return;
-			}
-
 			try {
-				let item = JSON.parse(JSON.stringify(this.resourceToChange));
-				if (this.resourceToChange.thumbnail && this.resourceToChange.thumbnail.file) {
+				// Validate this component and child components
+				const successMessage: SuccessMessage = this.validate();
+				const formData = new FormData();
+
+				// Stop now if there are some validations which failed
+				if (successMessage.success === false) {
+					return;
+				}
+
+				const uploadHookMessage: SuccessMessage =
+					await this.preUploadHook();
+				// Stop now if there are some hooks that failed
+				if (uploadHookMessage.success === false) {
+					return;
+				}
+
+				const item = JSON.parse(JSON.stringify(this.resourceToChange));
+				if (
+					this.resourceToChange.thumbnail &&
+					this.resourceToChange.thumbnail.file
+				) {
 					item.thumbnail.file = new File(
 						[this.resourceToChange.thumbnail.file],
 						this.resourceToChange.thumbnail.file.name
 					);
 				}
 
-				// const resourceObject: IResource_Base = {
-				// 	type: item.type,
-				// 	label: item.label,
-				// 	tags: item.tags,
-				// 	permissions: item.permissions,
-				// 	content: item.content,
-				// 	thumbnail: item.thumbnail,
-				// };
-
-				// const resourceObject2 = JSON.parse(JSON.stringify(this.resourceToChange));
-
-				// console.log(resourceObject2);
-
-				// const resourceObject: IResource_Base = this.resourceToChange;
-
-				this.cleanupResourceObject(item);
-
-				const formData = new FormData();
-
-				if (item.thumbnail === null) {
-					item.thumbnail = null;
-				} else if (item.thumbnail) {
-					if (
-						item.thumbnail.url !== undefined &&
-						item.thumbnail.url !== null
-					) {
+				switch (item.thumbnail) {
+					case null:
+						item.thumbnail = null;
+						break;
+					case item.thumbnail.url !== undefined &&
+						item.thumbnail.url !== null:
 						item.thumbnail = {
 							url: item.thumbnail.url,
 							size: "cover",
 						};
-					} else if (item.thumbnail.file) {
+						break;
+					case item.thumbnail.file:
 						formData.append(
 							"thumbnailUploadFile",
 							item.thumbnail.file
 						);
-					} else if (
-						typeof item.thumbnail.timeToTakeFrame === "number"
-					) {
+						break;
+					case typeof item.thumbnail.timeToTakeFrame === "number":
 						item.thumbnail = {
 							timeToTakeFrame: item.thumbnail.timeToTakeFrame,
 						};
-					}
+						break;
 				}
 
 				this.cleanupResourceObject(item);
