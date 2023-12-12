@@ -338,7 +338,10 @@ export default defineComponent({
 
 		tagsAsString: {
 			get() {
-				return this.item.tags.join(",");
+				return (
+					this.resourceToChange.tags.join(",") ||
+					this.item.tags.join(",")
+				);
 			},
 			set(text: string) {
 				this.resourceToChange.tags = text.trim().split(",");
@@ -755,7 +758,6 @@ export default defineComponent({
 				}
 			}
 		},
-
 
 		/** Prepares resource payload and makes API calls to save resource */
 		async saveResource() {

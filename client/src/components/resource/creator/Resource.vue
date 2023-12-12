@@ -149,6 +149,10 @@ import set from "just-safe-set";
 import SmartQuizQuestion from "../display/quiz/SmartQuizQuestion.vue";
 
 /** An array to map components to resource types */
+
+/**
+ * TODO: Move this to a separate file
+ */
 const RESOURCE_MAP = [
 	{
 		resourceType: ResourceType.URL,
@@ -174,6 +178,45 @@ const RESOURCE_MAP = [
 		resourceType: ResourceType.RESOURCE_COLLECTION_SMART_QUIZ,
 		label: "Smart Quiz",
 		component: SmartQuizQuestion,
+	},
+	{
+		resourceType: ResourceType.RESOURCE_EXPLORER_INLINE_DOCUMENT_INTERNAL,
+		label: "Note (Inline document)",
+		component: DocumentInternal,
+	},
+	{
+		resourceType: ResourceType.VIDEO_INTERNAL,
+		label: "Video (Upload)",
+		component: VideoInternal,
+	},
+	{
+		resourceType: ResourceType.SERVICE_EXTERNAL_LTI,
+		label: "LTI Tool",
+		component: ServiceExternalLti,
+	},
+];
+
+
+const resourceMap2 = [
+	{
+		resourceType: ResourceType.URL,
+		label: "Link",
+		component: Url,
+	},
+	{
+		resourceType: ResourceType.DOCUMENT_INTERNAL,
+		label: "Document (Editor)",
+		component: DocumentInternal,
+	},
+	{
+		resourceType: ResourceType.DOCUMENT_EXTERNAL,
+		label: "Document (Link to external)",
+		component: DocumentExternal,
+	},
+	{
+		resourceType: ResourceType.QUIZ_UQ_CHEM,
+		label: "Quiz",
+		component: QuizUq,
 	},
 	{
 		resourceType: ResourceType.RESOURCE_EXPLORER_INLINE_DOCUMENT_INTERNAL,
