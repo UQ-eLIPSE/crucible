@@ -889,47 +889,40 @@ export default defineComponent({
 				}
 
 				const item = JSON.parse(JSON.stringify(this.resourceToChange));
+
 				if (
-					item.thumbnail &&
-					item.thumbnail.file
+					this.resourceToChange.thumbnail &&
+					this.resourceToChange.thumbnail.file
 				) {
-					console.log(item.thumbnail.file, item.thumbnail.file.name);
 					item.thumbnail.file = new File(
-						[item.thumbnail.file],
-						item.thumbnail.file.name
+						[this.resourceToChange.thumbnail.file],
+						this.resourceToChange.thumbnail.file.name
 					);
-
-					console.log("Reaching", item.thumbnail.file);
-
-					console.log(item.thumbnail.file);
-					switch (item.thumbnail) {
-						case null:
-							item.thumbnail = null;
-							break;
-						case item.thumbnail.url !== undefined &&
-							item.thumbnail.url !== null:
-							item.thumbnail = {
-								url: item.thumbnail.url,
-								size: "cover",
-							};
-							break;
-						case item.thumbnail.file:
-							formData.append(
-								"thumbnailUploadFile",
-								item.thumbnail.file
-							);
-							break;
-						case typeof item.thumbnail.timeToTakeFrame === "number":
-							item.thumbnail = {
-								timeToTakeFrame: item.thumbnail.timeToTakeFrame,
-							};
-							break;
+				}
+				if (item.thumbnail) {
+					if (
+						item.thumbnail.url !== undefined &&
+						item.thumbnail.url !== null
+					) {
+						item.thumbnail = {
+							url: item.thumbnail.url,
+							size: "cover",
+						};
+					} else if (item.thumbnail.file) {
+						formData.append(
+							"thumbnailUploadFile",
+							item.thumbnail.file
+						);
+					} else if (
+						typeof item.thumbnail.timeToTakeFrame === "number"
+					) {
+						item.thumbnail = {
+							timeToTakeFrame: item.thumbnail.timeToTakeFrame,
+						};
 					}
 				}
 
 				this.cleanupResourceObject(item);
-				console.log(item);
-
 				const result = await Api.Resource.updateById(
 					JSON.parse(JSON.stringify(this.item))._id,
 					item,
