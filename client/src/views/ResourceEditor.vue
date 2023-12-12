@@ -356,8 +356,9 @@ export default defineComponent({
 			set(enabled: boolean) {
 				// Cannot do anything if auth object not initialized
 				if (!this.uqssoAuthObject) return;
-				this.item.permissions.auth![AuthMechanism.uqsso]!["basic"] =
-					enabled;
+				this.resourceToChange.permissions.auth![AuthMechanism.uqsso]![
+					"basic"
+				] = enabled;
 			},
 		},
 
@@ -403,9 +404,8 @@ export default defineComponent({
 			set(staffOnly: boolean) {
 				// Cannot do anything if auth object not initialized
 				if (!this.uqssoAuthObject) return;
-				this.item.permissions.auth![AuthMechanism.uqsso]![
-					"staffOnly"
-				] = staffOnly;
+				this.item.permissions.auth![AuthMechanism.uqsso]!["staffOnly"] =
+					staffOnly;
 			},
 		},
 
@@ -420,7 +420,8 @@ export default defineComponent({
 			set(hide: boolean) {
 				// Cannot do anything if auth object not initialized
 				if (!this.internalAuthObject) return;
-				this.item.permissions.auth![
+				this.resourceToChange.permissions = this.item.permissions;
+				this.resourceToChange.permissions.auth![
 					AuthMechanism.internal
 				]!["hidden"] = hide;
 			},
@@ -580,7 +581,7 @@ export default defineComponent({
 
 		/** Event handler for capturing thumbnail changes */
 		thumbnailHandler(thumbnail: any) {
-			this.item.thumbnail = thumbnail;
+			this.resourceToChange.thumbnail = thumbnail;
 		},
 
 		reorderHandler(newChildren: IResource_FromServer[]) {
@@ -889,42 +890,45 @@ export default defineComponent({
 
 				const item = JSON.parse(JSON.stringify(this.resourceToChange));
 				if (
-					this.resourceToChange.thumbnail &&
-					this.resourceToChange.thumbnail.file
+					item.thumbnail &&
+					item.thumbnail.file
 				) {
+					console.log(item.thumbnail.file, item.thumbnail.file.name);
 					item.thumbnail.file = new File(
-						[this.resourceToChange.thumbnail.file],
-						this.resourceToChange.thumbnail.file.name
+						[item.thumbnail.file],
+						item.thumbnail.file.name
 					);
-				}
 
-				switch (item.thumbnail) {
-					case null:
-						item.thumbnail = null;
-						break;
-					case item.thumbnail.url !== undefined &&
-						item.thumbnail.url !== null:
-						item.thumbnail = {
-							url: item.thumbnail.url,
-							size: "cover",
-						};
-						break;
-					case item.thumbnail.file:
-						formData.append(
-							"thumbnailUploadFile",
-							item.thumbnail.file
-						);
-						break;
-					case typeof item.thumbnail.timeToTakeFrame === "number":
-						item.thumbnail = {
-							timeToTakeFrame: item.thumbnail.timeToTakeFrame,
-						};
-						break;
+					console.log("Reaching", item.thumbnail.file);
+
+					console.log(item.thumbnail.file);
+					switch (item.thumbnail) {
+						case null:
+							item.thumbnail = null;
+							break;
+						case item.thumbnail.url !== undefined &&
+							item.thumbnail.url !== null:
+							item.thumbnail = {
+								url: item.thumbnail.url,
+								size: "cover",
+							};
+							break;
+						case item.thumbnail.file:
+							formData.append(
+								"thumbnailUploadFile",
+								item.thumbnail.file
+							);
+							break;
+						case typeof item.thumbnail.timeToTakeFrame === "number":
+							item.thumbnail = {
+								timeToTakeFrame: item.thumbnail.timeToTakeFrame,
+							};
+							break;
+					}
 				}
 
 				this.cleanupResourceObject(item);
-
-				// console.log(item);
+				console.log(item);
 
 				const result = await Api.Resource.updateById(
 					JSON.parse(JSON.stringify(this.item))._id,

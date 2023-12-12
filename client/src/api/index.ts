@@ -337,12 +337,12 @@ namespace Api {
 
 			console.log(resourceToUpload, formData);
 
-			// if (formData && formData.get("thumbnailUploadFile")) {
-			// 	formData.append("resource", JSON.stringify(resourceToUpload));
-			// 	return await put(appendUrl(PARENT, id), formData);
-			// } else {
-			// 	return await patch(appendUrl(PARENT, id), resourceToUpload);
-			// }
+			if (formData && formData.get("thumbnailUploadFile")) {
+				formData.append("resource", JSON.stringify(resourceToUpload));
+				return await put(appendUrl(PARENT, id), formData);
+			} else {
+				return await patch(appendUrl(PARENT, id), resourceToUpload);
+			}
 		}
 
 		/**
