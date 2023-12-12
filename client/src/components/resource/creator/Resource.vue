@@ -197,43 +197,43 @@ const RESOURCE_MAP = [
 ];
 
 
-const resourceMap2 = [
-	{
-		resourceType: ResourceType.URL,
-		label: "Link",
-		component: Url,
-	},
-	{
-		resourceType: ResourceType.DOCUMENT_INTERNAL,
-		label: "Document (Editor)",
-		component: DocumentInternal,
-	},
-	{
-		resourceType: ResourceType.DOCUMENT_EXTERNAL,
-		label: "Document (Link to external)",
-		component: DocumentExternal,
-	},
-	{
-		resourceType: ResourceType.QUIZ_UQ_CHEM,
-		label: "Quiz",
-		component: QuizUq,
-	},
-	{
-		resourceType: ResourceType.RESOURCE_EXPLORER_INLINE_DOCUMENT_INTERNAL,
-		label: "Note (Inline document)",
-		component: DocumentInternal,
-	},
-	{
-		resourceType: ResourceType.VIDEO_INTERNAL,
-		label: "Video (Upload)",
-		component: VideoInternal,
-	},
-	{
-		resourceType: ResourceType.SERVICE_EXTERNAL_LTI,
-		label: "LTI Tool",
-		component: ServiceExternalLti,
-	},
-];
+// const resourceMap2 = [
+// 	{
+// 		resourceType: ResourceType.URL,
+// 		label: "Link",
+// 		component: Url,
+// 	},
+// 	{
+// 		resourceType: ResourceType.DOCUMENT_INTERNAL,
+// 		label: "Document (Editor)",
+// 		component: DocumentInternal,
+// 	},
+// 	{
+// 		resourceType: ResourceType.DOCUMENT_EXTERNAL,
+// 		label: "Document (Link to external)",
+// 		component: DocumentExternal,
+// 	},
+// 	{
+// 		resourceType: ResourceType.QUIZ_UQ_CHEM,
+// 		label: "Quiz",
+// 		component: QuizUq,
+// 	},
+// 	{
+// 		resourceType: ResourceType.RESOURCE_EXPLORER_INLINE_DOCUMENT_INTERNAL,
+// 		label: "Note (Inline document)",
+// 		component: DocumentInternal,
+// 	},
+// 	{
+// 		resourceType: ResourceType.VIDEO_INTERNAL,
+// 		label: "Video (Upload)",
+// 		component: VideoInternal,
+// 	},
+// 	{
+// 		resourceType: ResourceType.SERVICE_EXTERNAL_LTI,
+// 		label: "LTI Tool",
+// 		component: ServiceExternalLti,
+// 	},
+// ];
 
 export default defineComponent({
 	name: "ResourceCreate",
