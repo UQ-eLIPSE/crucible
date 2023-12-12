@@ -449,7 +449,7 @@ export default defineComponent({
 
 		resourceLabel: {
 			get() {
-				return this.item.label;
+				return this.resourceToChange.label || this.item.label;
 			},
 			set(label: string) {
 				this.resourceToChange.label = label;
@@ -756,118 +756,6 @@ export default defineComponent({
 			}
 		},
 
-		/**
-		 * Add any questions that were added during editing and
-		 * update all existing questions
-		 * @param previousIds Array of object ids for unedited quiz
-		 * @param quiz Edited quiz resource
-		 * @returns Updated quiz
-		 */
-		async updateAddQuestions(
-			previousIds: string[],
-			quiz: IResource_Quiz_UQ_Chem
-		) {
-			const updatedQuiz = quiz;
-			const updatedQuestions = await Promise.all(
-				updatedQuiz.content.questionList.map(async (question) => {
-					const formData = new FormData();
-					this.cleanupResourceObject(question);
-					formData.append("resource", JSON.stringify(question));
-					// Check if question already existed in quiz
-					const result =
-						question._id && previousIds.includes(question._id)
-							? await Api.Resource.updateById(
-									question._id,
-									question,
-									formData
-							  )
-							: !question._id
-							? // Question doesn't exist in database (doesn't contain an ID) so create it
-							  await Api.Resource.insert(formData)
-							: undefined;
-					return result
-						? (result.data as IResource_Quiz_Question)
-						: question;
-				})
-			);
-
-			// Update Quiz with updated question list
-			updatedQuiz.content.questionList = updatedQuestions;
-
-			return updatedQuiz;
-		},
-
-		/**
-		 * Perform diff check to see if any question has been deleted from quiz
-		 * @param previousIds Array of object ids for unedited quiz
-		 * @param editedIds Array of object ids for edited quiz
-		 * @param quiz Edited quiz resource
-		 * @returns Updated quiz
-		 */
-		async removeQuestions(
-			previousIds: string[],
-			editedIds: string[],
-			quiz: IResource_Quiz_UQ_Chem
-		) {
-			const updatedQuiz = quiz;
-			// Compare IDs to check if any question has been deleted
-			// Array contains IDs that have been deleted
-			const questionIdDiff = previousIds.filter(
-				(id) => !editedIds.includes(id)
-			);
-
-			// Delete all questions from database that were removed during edit
-			for (const questionId of questionIdDiff)
-				await Api.Resource.remove(questionId);
-
-			// Remove child objects from quiz
-			const updatedQuestions = updatedQuiz.content.questionList.filter(
-				(question) => !questionIdDiff.includes(question._id)
-			);
-			updatedQuiz.content.questionList = updatedQuestions;
-
-			return updatedQuiz;
-		},
-
-		/**
-		 * This function handles quiz questions and
-		 * removes temporary currentState propert from quiz
-		 *
-		 * - Deletes questions that were removed from quiz
-		 * - Updates and adds questions
-		 * @param item Edited quiz
-		 * @returns Array of children question object IDs
-		 */
-		async convertQuizToServer(item: IResource_Quiz_UQ_Chem) {
-			// Removes all `currentState` properties from a quiz
-			// `currentState` is a temporary prop added to hold the state of quiz elements
-			if (item.type === ResourceType.QUIZ_UQ_CHEM) {
-				this.removeKeys(item.content, ["currentState"]);
-			}
-
-			let quiz = item;
-			const editedQuestionIds = Api.Resource.combineQuestionIDs(
-				item.content.questionList
-			);
-			const previousQuestionIds = Api.Resource.combineQuestionIDs(
-				this.previousQuiz.content.questionList
-			);
-
-			// Delete questions that were removed from quiz
-			quiz = await this.removeQuestions(
-				previousQuestionIds,
-				editedQuestionIds,
-				quiz
-			);
-
-			// Update and add all children questions for quiz
-			quiz = await this.updateAddQuestions(previousQuestionIds, quiz);
-
-			const objectIds = Api.Resource.combineQuestionIDs(
-				quiz.content.questionList
-			);
-			return objectIds;
-		},
 
 		/** Prepares resource payload and makes API calls to save resource */
 		async saveResource() {
