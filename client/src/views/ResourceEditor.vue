@@ -78,12 +78,13 @@ import ErrorMessage from "@/components/resource/ErrorMessage.vue";
 import ResourceActions from "@/components/resource/edit/ResourceActions.vue";
 import ResourceForm from "@/components/resource/edit/ResourceForm.vue";
 
-import type { Status, StatusType } from "@/utils/Resources";
+import type { Status } from "@/utils/Resources";
+import { statusTypes } from "@/utils/Resources";
 
 import ReorderResources from "@/components/resource/ReorderResources.vue";
 import PathBreadcrumbs from "@/components/resource/PathBreadcrumbs.vue";
 
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 
 function cleanPaths(paths: string | string[]) {
 	// These are indices for String#substr() with regards to stripping
@@ -137,25 +138,7 @@ export default defineComponent({
 				_id: "",
 			} as IResource_FromServer,
 
-			/** Stores status types and css classes */
-			statusTypes: {
-				postSuccess: {
-					message: "Updated successfully",
-					class: "success",
-				},
-				postError: {
-					message: "Error updating resource. Please try again.",
-					class: "error",
-				},
-				deleteError: {
-					message: "Resource could not be deleted. Please try again.",
-					class: "error",
-				},
-				deleteSuccess: {
-					message: "Resource has been deleted successfully.",
-					class: "success",
-				},
-			} as StatusType,
+			formData: new FormData(),
 
 			resourceLabelMessage: undefined as SuccessMessage | undefined,
 
@@ -353,84 +336,79 @@ export default defineComponent({
 		_from: RouteLocationNormalized,
 		next: Function
 	) {
-		// We can't just make the `beforeRouteEnter` hook "async" due to type
-		// conflicts, so instead we use an async IIFE as a wrapper inside the
-		// body
 		(async () => {
 			try {
-				// ID of the gotten resource is provided from the route
 				const id = cleanPaths(to.params.pathMatch).pop();
-
 				if (id === undefined || id.length === 0) {
 					throw new Error("No ID could be extracted from path");
 				}
 
-				const result = await Api.Resource.getById(id);
-				let item = result.data;
+				next(async (vm: any) => {
+					const item = await vm.fetchItem(id);
+					const childrenDataArray = await vm.fetchChildren(item);
+					const previousQuiz = item
+						? item
+						: ({} as IResource_Quiz_UQ_Chem);
 
-				let childrenDataArray: IResource_FromServer[] | undefined =
-					undefined;
-
-				// Check if resource is a Quiz and extract children questions
-				const quiz = await Api.Resource.convertQuiz(item);
-				let previousQuiz = {} as IResource_Quiz_UQ_Chem;
-
-				// Resource is not a quiz so extract children
-				if (!quiz) {
-					// Check if resource contains children and children are not already objects
-					if (
-						item.content.children &&
-						typeof item.content.children[0] !== "object"
-					) {
-						// If yes, fetch children as well
-						const children: string[] = item.content.children;
-
-						const childrenResponses = await Promise.all(
-							children.map((childId) =>
-								Api.Resource.getById(childId)
-							)
-						);
-
-						childrenDataArray = childrenResponses.map(
-							(response) => response.data
-						);
-					}
-				} else {
-					// Append current state to questions
-					Api.Resource.appendKeysToQuiz(
-						quiz as IResource_Quiz_UQ_Chem
+					vm.setupComponent(
+						vm,
+						item,
+						childrenDataArray,
+						previousQuiz
 					);
-					item = quiz;
-					// Store current state of quiz to use when performing diff check after edit
-					previousQuiz = quiz;
-				}
-
-				// Note that the component has not actually been instantiated fully
-				// at this point, so direct references to `this` are not valid.
-				// Instead, we use `vm` with type any to refer to the component.
-				next((vm: any) => {
-					// Set the response object as the `item` for this component
-					createAuthObjectIfNotExist(item);
-					vm.item = item;
-					vm.previousQuiz = previousQuiz;
-					// Set resource loaded to true so that certain child components get item when it's loaded
-					vm.resourceLoaded = true;
-
-					if (childrenDataArray !== undefined) {
-						vm.assignChildren(childrenDataArray);
-					}
-
-					vm.setupBreadcrumbs();
 				});
 			} catch (e) {
-				// TODO: Handle errors!
 				console.log(e);
-
 				alert("Could not retrieve requested resource");
 			}
 		})();
 	},
 	methods: {
+		/** Fetches resource by ID */
+		async fetchItem(id: string) {
+			const result = await Api.Resource.getById(id);
+			let item = result.data;
+
+			const quiz = await Api.Resource.convertQuiz(item);
+			if (quiz) {
+				Api.Resource.appendKeysToQuiz(quiz as IResource_Quiz_UQ_Chem);
+				item = quiz;
+			}
+
+			return item;
+		},
+		/** Fetches children of resource */
+		async fetchChildren(item: any) {
+			if (
+				item.content.children &&
+				typeof item.content.children[0] !== "object"
+			) {
+				const children: string[] = item.content.children;
+				const childrenResponses = await Promise.all(
+					children.map((childId) => Api.Resource.getById(childId))
+				);
+				return childrenResponses.map((response) => response.data);
+			}
+			return undefined;
+		},
+		/** Sets up component with data */
+		setupComponent(
+			vm: any,
+			item: any,
+			childrenDataArray: IResource_FromServer[] | undefined,
+			previousQuiz: IResource_Quiz_UQ_Chem
+		) {
+			createAuthObjectIfNotExist(item);
+			vm.item = item;
+			vm.previousQuiz = previousQuiz;
+			vm.resourceLoaded = true;
+
+			if (childrenDataArray !== undefined) {
+				vm.assignChildren(childrenDataArray);
+			}
+
+			vm.setupBreadcrumbs();
+		},
 		/** Event handler for capturing thumbnail changes */
 		thumbnailHandler(thumbnail: any) {
 			this.resourceToChange.thumbnail = thumbnail;
@@ -440,7 +418,7 @@ export default defineComponent({
 			const newChildrenIds = newChildren.map(
 				(child: IResource_FromServer) => child._id
 			);
-			this.item.content.children = [...newChildrenIds];
+			this.resourceToChange.content = { children: [...newChildrenIds] };
 		},
 		createAuthObjectIfNotExist(resource: IResource_Base) {
 			if (
@@ -481,47 +459,41 @@ export default defineComponent({
 
 		/** Validates Editor and child components */
 		validate(): SuccessMessage {
-			const failureMessages: string[] = [];
+			const failureMessages = this.validateResourceLabel();
+			const editComponentMessages =
+				this.validateComponent("edit-component");
+			const thumbnailComponentMessages = this.validateComponent(
+				"thumbnail-edit-component"
+			);
 
-			// Ensure that resource label is filled in
-			if (this.resourceLabel.trim().length === 0) {
-				const messageStr = "Title is empty";
-				failureMessages.push(messageStr);
-
-				this.setResourceLabelMessage(false, [messageStr]);
-			}
-
-			// We also check the editor component inside for its validity as well
-			const editComponentValidationSuccess: SuccessMessage = (
-				(this.$refs["edit-component"] &&
-					(this.$refs["edit-component"] as any).validate) ||
-				(() => ({ success: true }))
-			)();
-
-			const thumbnailComponentValidationSuccess: SuccessMessage = (
-				(this.$refs["thumbnail-edit-component"] &&
-					(this.$refs["thumbnail-edit-component"] as any).validate) ||
-				(() => ({ success: true }))
-			)();
-
-			// Combine the two sets of messages
 			const combinedMessages = [
 				...failureMessages,
-				...(editComponentValidationSuccess.messages || []),
-				...(thumbnailComponentValidationSuccess.messages || []),
+				...editComponentMessages,
+				...thumbnailComponentMessages,
 			];
 
-			// If there are any messages, this means that validation failed
-			if (combinedMessages.length > 0) {
-				return {
-					success: false,
-					messages: combinedMessages,
-				};
-			} else {
-				return {
-					success: true,
-				};
+			return {
+				success: combinedMessages.length === 0,
+				messages: combinedMessages,
+			};
+		},
+
+		validateResourceLabel(): string[] {
+			if (this.resourceLabel.trim().length === 0) {
+				const messageStr = "Title is empty";
+				this.setResourceLabelMessage(false, [messageStr]);
+				return [messageStr];
 			}
+			return [];
+		},
+
+		validateComponent(refName: string): string[] {
+			const component = this.$refs[refName] as any;
+			if (component && component.validate) {
+				const { messages = [] } = component.validate();
+				return messages;
+			}
+			return [];
 		},
 
 		/**
@@ -565,7 +537,7 @@ export default defineComponent({
 				// Return to parent after successful removal
 				this.goToParentCollection();
 			} catch (e) {
-				this.message = this.statusTypes.deleteError;
+				this.message = statusTypes.deleteError;
 			}
 		},
 
@@ -611,80 +583,88 @@ export default defineComponent({
 		/** Prepares resource payload and makes API calls to save resource */
 		async saveResource() {
 			try {
-				// Validate this component and child components
-				const successMessage: SuccessMessage = this.validate();
-				const formData = new FormData();
+				const successMessage = this.validate();
+				if (!successMessage.success) return;
 
-				// Stop now if there are some validations which failed
-				if (successMessage.success === false) {
-					return;
-				}
+				const uploadHookMessage = await this.preUploadHook();
+				if (!uploadHookMessage.success) return;
 
-				const uploadHookMessage: SuccessMessage =
-					await this.preUploadHook();
-				// Stop now if there are some hooks that failed
-				if (uploadHookMessage.success === false) {
-					return;
-				}
-
-				const item = JSON.parse(JSON.stringify(this.resourceToChange));
-
-				if (
-					this.resourceToChange.thumbnail &&
-					this.resourceToChange.thumbnail.file
-				) {
-					item.thumbnail.file = new File(
-						[this.resourceToChange.thumbnail.file],
-						this.resourceToChange.thumbnail.file.name
-					);
-				}
-				if (item.thumbnail) {
-					if (
-						item.thumbnail.url !== undefined &&
-						item.thumbnail.url !== null
-					) {
-						item.thumbnail = {
-							url: item.thumbnail.url,
-							size: "cover",
-						};
-					} else if (item.thumbnail.file) {
-						formData.append(
-							"thumbnailUploadFile",
-							item.thumbnail.file
-						);
-					} else if (
-						typeof item.thumbnail.timeToTakeFrame === "number"
-					) {
-						item.thumbnail = {
-							timeToTakeFrame: item.thumbnail.timeToTakeFrame,
-						};
-					}
-				}
+				const item = this.prepareItemForUpdate();
 
 				this.cleanupResourceObject(item);
+
 				const result = await Api.Resource.updateById(
 					JSON.parse(JSON.stringify(this.item))._id,
 					item,
-					formData
+					this.formData
 				);
 
-				// Force update this item's data
-				const updatedResource = await Api.Resource.convertQuiz(
-					result.data
-				);
-				// Quizzes have to be converted back to questionList array of children
-				// questions and add the currentState properties back to display them
-				if (updatedResource) {
-					Api.Resource.appendKeysToQuiz(updatedResource);
-					this.item = updatedResource;
-				} else {
-					this.item = result.data;
-				}
+				this.updateItemWithResponse(result);
 
-				this.message = this.statusTypes.postSuccess;
+				this.message = statusTypes.postSuccess;
 			} catch (e) {
 				// TODO: Handle errors!
-				this.message = this.statusTypes.postError;
+				this.message = statusTypes.postError;
+			}
+		},
+		/**
+		 * Prepares item for upload
+		 */
+		prepareItemForUpdate() {
+			const item = JSON.parse(JSON.stringify(this.resourceToChange));
+
+			if (
+				this.resourceToChange.thumbnail &&
+				this.resourceToChange.thumbnail.file
+			) {
+				item.thumbnail.file = new File(
+					[this.resourceToChange.thumbnail.file],
+					this.resourceToChange.thumbnail.file.name
+				);
+			}
+
+			if (item.thumbnail) {
+				this.prepareThumbnail(item);
+			}
+
+			return item;
+		},
+		/**
+		 * Prepares thumbnail for upload
+		 * @param item Resource object
+		 */
+		prepareThumbnail(item: IResource_FromServer) {
+			if (
+				item.thumbnail.url !== undefined &&
+				item.thumbnail.url !== null
+			) {
+				item.thumbnail = {
+					url: item.thumbnail.url,
+					size: "cover",
+				};
+			} else if (item.thumbnail.file) {
+				this.formData.append(
+					"thumbnailUploadFile",
+					item.thumbnail.file
+				);
+			} else if (typeof item.thumbnail.timeToTakeFrame === "number") {
+				item.thumbnail = {
+					timeToTakeFrame: item.thumbnail.timeToTakeFrame,
+				};
+			}
+		},
+		/**
+		 * Updates item with response from API
+		 * @param result AxiosResponse object
+		 */
+		async updateItemWithResponse(result: AxiosResponse) {
+			const updatedResource = await Api.Resource.convertQuiz(result.data);
+
+			if (updatedResource) {
+				Api.Resource.appendKeysToQuiz(updatedResource);
+				this.item = updatedResource;
+			} else {
+				this.item = result.data;
 			}
 		},
 		/**

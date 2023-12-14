@@ -335,8 +335,6 @@ namespace Api {
 			// internal to the client
 			cleanObjectOfUnderscoreProperties(resourceToUpload);
 
-			console.log(resourceToUpload, formData);
-
 			if (formData && formData.get("thumbnailUploadFile")) {
 				formData.append("resource", JSON.stringify(resourceToUpload));
 				return await put(appendUrl(PARENT, id), formData);

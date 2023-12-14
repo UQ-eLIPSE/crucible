@@ -49,9 +49,28 @@ export interface Status {
 	message: string;
 	class: string;
 }
-export interface StatusType {
+export interface IStatusType {
 	[key: string]: Status;
 }
+
+export const statusTypes = {
+	postSuccess: {
+		message: "Updated successfully",
+		class: "success",
+	},
+	postError: {
+		message: "Error updating resource. Please try again.",
+		class: "error",
+	},
+	deleteError: {
+		message: "Resource could not be deleted. Please try again.",
+		class: "error",
+	},
+	deleteSuccess: {
+		message: "Resource has been deleted successfully.",
+		class: "success",
+	},
+} as IStatusType;
 
 /** Finds type object based on resource type from RESOURCE_MAP */
 export const getTypeObjectByResourceType = (resourceType: ResourceType) =>
