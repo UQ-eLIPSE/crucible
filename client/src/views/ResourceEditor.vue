@@ -14,86 +14,24 @@
 			<div class="content-area">
 				<h1>Resource Editor</h1>
 
-				<div
-					v-if="statusInstance"
-					class="message"
-					:class="messageStyles"
-				>
-					{{ message?.message }}
-				</div>
-				<div class="save-bar">
-					<button
-						class="button"
-						@click.prevent="saveResource"
-					>
-						Save
-					</button>
-
-					<button
-						class="button delete-button"
-						v-if="!isCollectionRoot"
-						@click.prevent="deleteResource"
-					>
-						Delete
-					</button>
-				</div>
-
-				<ul class="property-list">
-					<li class="field">
-						<label>
-							<span class="field-label">Title</span>
-							<div
-								v-if="resourceLabelMessage"
-								class="inline-message-box negative"
-							>
-								{{ resourceLabelMessageOutput }}
-							</div>
-							<input
-								type="text"
-								v-model="resourceLabel"
-							/>
-						</label>
-					</li>
-
-					<li class="field">
-						<label>
-							<span class="field-label">Tags</span>
-							<input
-								type="text"
-								v-model="tagsAsString"
-								placeholder="Enter comma separated tags..."
-							/>
-						</label>
-					</li>
-
-					<!-- Thumbnail edit component -->
-					<li class="field">
-						<label>
-							<Thumbnail
-								v-if="resourceLoaded"
-								:isEdit="true"
-								:resource="item"
-								ref="thumbnail-edit-component"
-								@thumbnailChanged="thumbnailHandler"
-							></Thumbnail>
-						</label>
-					</li>
-
-					<!-- Hide resource -->
-					<li class="field">
-						<span class="field-label">Visibility</span>
-						<label>
-							<input
-								type="checkbox"
-								v-model="resourcePermissionsInternalHide"
-								class="standard-width"
-							/>
-							<span>Hide resource</span>
-						</label>
-					</li>
-
-					<!-- SSO permissions switch -->
-				</ul>
+				<ErrorMessage
+					:message="message"
+					:messageStyles="messageStyles"
+				/>
+				<ResourceActions
+					:isCollectionRoot="isCollectionRoot"
+					@save="saveResource"
+					@delete="deleteResource"
+				/>
+				<ResourceForm
+					v-model:resourceLabel="resourceLabel"
+					v-model:tagsAsString="tagsAsString"
+					v-model:resourcePermissionsInternalHide="
+						resourcePermissionsInternalHide
+					"
+					:item="item"
+					@thumbnailChanged="thumbnailHandler"
+				/>
 
 				<!-- Render ReorderResources if resource is a collection or topic bundle with atleast one child present -->
 				<ReorderResources
@@ -131,21 +69,16 @@ import {
 	IResource_Quiz_UQ_Chem,
 	AuthMechanism,
 	IResource_Base,
-	IResource_Quiz_Question,
-	IResource_Quiz_UQ_Chem_Database,
 } from "@/types/Resource";
 import type { SuccessMessage } from "@/types/SuccessMessage";
 import { createAuthObjectIfNotExist } from "@/utils/Permission";
 
 import ResourceDisplay from "@/components/resource/display/ResourceDisplay.vue";
+import ErrorMessage from "@/components/resource/ErrorMessage.vue";
+import ResourceActions from "@/components/resource/edit/ResourceActions.vue";
+import ResourceForm from "@/components/resource/edit/ResourceForm.vue";
 
-import Url from "../components/resource/edit/Url.vue";
-import VideoInternal from "../components/resource/edit/VideoInternal.vue";
-import DocumentInternal from "../components/resource/edit/DocumentInternal.vue";
-import DocumentExternal from "../components/resource/edit/DocumentExternal.vue";
-import Thumbnail from "../components/resource/edit/Thumbnail.vue";
-import ServiceExternalLti from "../components/resource/edit/ServiceExternalLti.vue";
-import QuizUq from "../components/resource/edit/quiz/QuizUq.vue";
+import type { Status, StatusType } from "@/utils/Resources";
 
 import ReorderResources from "@/components/resource/ReorderResources.vue";
 import PathBreadcrumbs from "@/components/resource/PathBreadcrumbs.vue";
@@ -175,65 +108,15 @@ function cleanPaths(paths: string | string[]) {
 	return allPaths;
 }
 
-/** An array to map components to resource types */
-const RESOURCE_MAP = [
-	{
-		resourceType: ResourceType.URL,
-		label: "Link",
-		component: Url,
-	},
-	{
-		resourceType: ResourceType.DOCUMENT_INTERNAL,
-		label: "Document (Editor)",
-		component: DocumentInternal,
-	},
-	{
-		resourceType: ResourceType.DOCUMENT_EXTERNAL,
-		label: "Document (Link to external)",
-		component: DocumentExternal,
-	},
-	{
-		resourceType: ResourceType.QUIZ_UQ_CHEM,
-		label: "Quiz",
-		component: QuizUq,
-	},
-
-	/**
-	 * KIM: Add your custom question display view here
-	 * resourceType: ResourceType.QUIZ_QUESTION
-	 */
-	{
-		resourceType: ResourceType.RESOURCE_EXPLORER_INLINE_DOCUMENT_INTERNAL,
-		label: "Note (Inline document)",
-		component: DocumentInternal,
-	},
-	{
-		resourceType: ResourceType.VIDEO_INTERNAL,
-		label: "Video (Upload)",
-		component: VideoInternal,
-	},
-	{
-		resourceType: ResourceType.SERVICE_EXTERNAL_LTI,
-		label: "LTI Tool",
-		component: ServiceExternalLti,
-	},
-];
-
-interface Status {
-	message: string;
-	class: string;
-}
-interface StatusType {
-	[key: string]: Status;
-}
-
 export default defineComponent({
 	name: "ResourceEditor",
 	components: {
 		ResourceDisplay,
-		Thumbnail,
 		ReorderResources,
 		PathBreadcrumbs,
+		ErrorMessage,
+		ResourceActions,
+		ResourceForm,
 	},
 	data() {
 		return {
@@ -304,11 +187,6 @@ export default defineComponent({
 				this.childrenResources = childrenArray;
 			},
 		},
-
-		authMechanism() {
-			return AuthMechanism;
-		},
-
 		message: {
 			get() {
 				return this.statusInstance;
@@ -338,10 +216,7 @@ export default defineComponent({
 
 		tagsAsString: {
 			get() {
-				return (
-					this.resourceToChange.tags.join(",") ||
-					this.item.tags.join(",")
-				);
+				return this.item.tags.join(",");
 			},
 			set(text: string) {
 				this.resourceToChange.tags = text.trim().split(",");
@@ -556,32 +431,6 @@ export default defineComponent({
 		})();
 	},
 	methods: {
-		isPermissionApplicable(
-			item: IResource_FromServer,
-			authMechanism: AuthMechanism
-		) {
-			if (!item) return false;
-			switch (authMechanism) {
-				case AuthMechanism.uqsso:
-					// Permission is applicable for all resources except note or URL
-					// Also, if item type does not exist, permission is not applicable
-					return (
-						item.type &&
-						!(
-							item.type === ResourceType.URL ||
-							item.type ===
-								ResourceType.RESOURCE_EXPLORER_INLINE_DOCUMENT_INTERNAL
-						)
-					);
-				case AuthMechanism.internal:
-					// At the moment, any resource can be hidden
-					// i.e. this permission is applicable to all resource types
-					return true;
-				default:
-					return false;
-			}
-		},
-
 		/** Event handler for capturing thumbnail changes */
 		thumbnailHandler(thumbnail: any) {
 			this.resourceToChange.thumbnail = thumbnail;
@@ -838,23 +687,6 @@ export default defineComponent({
 				this.message = this.statusTypes.postError;
 			}
 		},
-
-		/** Finds component based on resource type from RESOURCE_MAP */
-		getResourceEditComponent(resourceType: ResourceType) {
-			const typeObj = RESOURCE_MAP.find(
-				(x) => x.resourceType === resourceType
-			);
-
-			// Either returns `undefined` if `typeObj === undefined`; otherwise the
-			// `.component` value
-			return typeObj && typeObj.component;
-		},
-
-		/** Finds type object based on resource type from RESOURCE_MAP */
-		getTypeObjectByResourceType(resourceType: ResourceType) {
-			return RESOURCE_MAP.find((x) => x.resourceType === resourceType);
-		},
-
 		/**
 		 * Fetches collection resources using collection ids array
 		 * @param ancestorCollectionIds Array of ancestor collections of the current resource being edited
