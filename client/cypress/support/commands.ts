@@ -60,19 +60,12 @@ Cypress.Commands.add('createCollection', () => {
         ".resource-creator-collection > div:nth-child(4) > label:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(3) > div:nth-child(1) > div:nth-child(1) > form:nth-child(1) > label:nth-child(1) > input:nth-child(1)"
     ).selectFile("cypress/fixtures/image_test.jpg", { force: true });
     cy.get('[cy-data="create-button"]').click();
-    cy.intercept("POST", "/api/resource/").as("createQuery");
-    cy.wait("@createQuery");
-    cy.visit("/");
-    cy.get(".collection-roots > li:nth-child(1) > a:nth-child(1)").click();
+    cy.intercept("POST", "/api/resource/").as("postQuery");
+    cy.intercept("GET", "/api/resource/*").as("getQuery");
+    cy.intercept("PATCH", "/api/resource/*").as("patchQuery");
+    cy.wait("@postQuery");
+    cy.wait("@getQuery");
+    cy.wait("@patchQuery");
 });
-
-// Cypress.Commands.add('deleteCollection', () => {
-//     cy.get('[cy-data="delete-collection-button"]').click();
-//     cy.get('[cy-data="delete-button"]').click();
-//     cy.intercept("DELETE", "/api/resource/").as("deleteQuery");
-//     cy.wait("@deleteQuery");
-//     cy.visit("/");
-//     cy.get(".collection-roots > li:nth-child(1) > a:nth-child(1)").click();
-// });
 
 export {}
