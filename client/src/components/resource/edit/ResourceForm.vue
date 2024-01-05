@@ -26,6 +26,7 @@
 					:value="tagsAsString"
 					@input="$emit('update:tagsAsString', $event.target.value)"
 					placeholder="Enter comma separated tags..."
+					cy-data="tags-field"
 				/>
 			</label>
 		</li>
@@ -56,6 +57,7 @@
 						)
 					"
 					class="standard-width"
+					cy-data="visibility-checkbox"
 				/>
 				<span>Hide resource</span>
 			</label>

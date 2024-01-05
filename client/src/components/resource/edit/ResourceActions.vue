@@ -3,6 +3,7 @@
 		<button
 			class="button"
 			@click.prevent="$emit('save')"
+			cy-data="save-button"
 		>
 			Save
 		</button>

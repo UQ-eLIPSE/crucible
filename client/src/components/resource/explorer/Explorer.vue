@@ -92,7 +92,7 @@
 						>
 					</li>
 					<li v-if="!isCollection(childItem)">
-						<a @click.stop.prevent="editResource(childItem._id)"
+						<a @click.stop.prevent="editResource(childItem._id)" cy-data="edit-resource-button"
 							>Edit</a
 						>
 					</li>

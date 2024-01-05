@@ -12,7 +12,7 @@
 		<div class="field">
 			<label>
 				<span class="field-label">Type</span>
-				<select v-model="resourceType" cy-data="resource-select">
+				<select v-model="resourceType" cy-data="resource-select" >
 					<option
 						v-for="typeObj in resourceTypesMap"
 						:key="typeObj.resourceType"
@@ -45,6 +45,7 @@
 			<label>
 				<span class="field-label">Tags</span>
 				<input
+					cy-data="tags-field"
 					type="text"
 					v-model="tagsAsString"
 					placeholder="Enter comma separated tags..."
@@ -70,6 +71,7 @@
 					type="checkbox"
 					v-model="resourcePermissionsInternalHide"
 					class="standard-width"
+					cy-data="visibility-checkbox"
 				/>
 				<span>Hide resource</span>
 			</label>

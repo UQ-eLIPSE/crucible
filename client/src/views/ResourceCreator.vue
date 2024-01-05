@@ -109,6 +109,7 @@
 						v-if="hasResources"
 						:disabled="resourceControlButtonsDisabled"
 						@click.prevent="uploadResources"
+						cy-data="save-and-upload-button"
 					>
 						Save and Upload
 					</button>
