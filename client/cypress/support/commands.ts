@@ -42,7 +42,6 @@ Cypress.Commands.add("administratorLogin", () => {
 	cy.get('[cy-data="password-field"]').type("test1234");
 	cy.get('[cy-data="login-button"]').click();
     cy.intercept("/api/auth/login/local").as("userQuery");
-    // cy.wait("@userQuery");
 });
 
 Cypress.Commands.add("createResource", () => {
