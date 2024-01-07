@@ -611,7 +611,10 @@ export default defineComponent({
 		 * Prepares item for upload
 		 */
 		prepareItemForUpdate() {
+			console.log(JSON.parse(JSON.stringify(this.item)));
 			const item = JSON.parse(JSON.stringify(this.resourceToChange));
+
+			item.content = this.item.content;
 
 			if (
 				this.resourceToChange.thumbnail &&
