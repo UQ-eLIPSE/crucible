@@ -21,6 +21,7 @@
 				<a
 					@click.prevent.stop="editActiveCollection"
 					class="button small"
+					cy-data="edit-collection-button"
 					>Edit</a
 				>
 			</li>

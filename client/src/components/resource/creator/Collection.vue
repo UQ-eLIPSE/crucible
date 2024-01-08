@@ -3,7 +3,7 @@
 		<div class="field">
 			<label>
 				<span class="field-label">Type</span>
-				<select v-model="collectionEdit.type">
+				<select v-model="collectionEdit.type" cy-data="collection-select">
 					<option :value="resourceTypes.RESOURCE_COLLECTION">
 						Collection
 					</option>
@@ -45,6 +45,7 @@
 					type="text"
 					v-model="tagsAsString"
 					placeholder="Enter comma separated tags..."
+					cy-data="collection-tags-field"
 				/>
 			</label>
 		</div>

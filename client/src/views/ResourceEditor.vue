@@ -1,184 +1,28 @@
 <template>
 	<div class="resource-editor">
 		<p v-if="pathFetchError">Error: {{ pathFetchError }}</p>
-		<div
-			v-else
-			class="content-wrapper"
-		>
-			<PathBreadcrumbs
-				:pathItems="collectionsPath"
-				:displayEditButton="false"
-				class="breadcrumbs"
-			></PathBreadcrumbs>
+		<div v-else class="content-wrapper">
+			<PathBreadcrumbs :pathItems="collectionsPath" :displayEditButton="false" class="breadcrumbs"></PathBreadcrumbs>
 
 			<div class="content-area">
 				<h1>Resource Editor</h1>
 
-				<div
-					v-if="statusInstance"
-					class="message"
-					:class="messageStyles"
-				>
-					{{ message?.message }}
-				</div>
-				<div class="save-bar">
-					<button
-						class="button"
-						@click.prevent="saveResource"
-					>
-						Save
-					</button>
-
-					<button
-						class="button delete-button"
-						v-if="!isCollectionRoot"
-						@click.prevent="deleteResource"
-					>
-						Delete
-					</button>
-				</div>
-
-				<ul class="property-list">
-					<li class="field">
-						<label>
-							<span class="field-label">Title</span>
-							<div
-								v-if="resourceLabelMessage"
-								class="inline-message-box negative"
-							>
-								{{ resourceLabelMessageOutput }}
-							</div>
-							<input
-								type="text"
-								v-model="resourceLabel"
-							/>
-						</label>
-					</li>
-
-					<!-- <li class="field">
-						<label>
-							<span class="field-label">Tags</span>
-							<input
-								type="text"
-								v-model="tagsAsString"
-								placeholder="Enter comma separated tags..."
-							/>
-						</label>
-					</li> -->
-
-					<!-- Thumbnail edit component -->
-					<!-- <li class="field">
-						<label>
-							<Thumbnail
-								v-if="resourceLoaded"
-								:isEdit="true"
-								:resource="item"
-								ref="thumbnail-edit-component"
-								@thumbnailChanged="thumbnailHandler"
-							></Thumbnail>
-						</label>
-					</li> -->
-
-					<!-- Hide resource -->
-					<!-- <li class="field">
-						<span class="field-label">Visibility</span>
-						<label>
-							<input
-								type="checkbox"
-								v-model="resourcePermissionsInternalHide"
-								class="standard-width"
-							/>
-							<span>Hide resource</span>
-						</label>
-					</li> -->
-
-					<!-- SSO permissions switch -->
-					<!-- <li class="field">
-						<span class="field-label">Permissions</span>
-						<label
-							class="info"
-							v-if="
-								!isPermissionApplicable(
-									item,
-									authMechanism.uqsso
-								)
-							"
-						>
-							<em
-								>"{{
-									(
-										getTypeObjectByResourceType(
-											item.type
-										) || { label: "Current resource " }
-									).label
-								}}" type resource cannot be locked with UQ
-								SSO</em
-							>
-						</label>
-						<label
-							v-show="
-								isPermissionApplicable(
-									item,
-									authMechanism.uqsso
-								)
-							"
-						>
-							<input
-								type="checkbox"
-								v-model="resourcePermissionsUqsso"
-								class="standard-width"
-							/>
-							<span
-								>Enforce UQ SSO login to view this
-								resource</span
-							>
-						</label>
-						<label
-							class="indented"
-							v-show="
-								resourcePermissionsUqsso &&
-								isPermissionApplicable(
-									item,
-									authMechanism.uqsso
-								)
-							"
-						>
-							<input
-								type="checkbox"
-								v-model="resourcePermissionsUqssoStaffOnly"
-								class="standard-width"
-							/>
-							<span>Only UQ Staff can view this resource</span>
-						</label>
-					</li> -->
-					<!-- <component
-						:is="getResourceEditComponent(item.type)"
-						v-model:resource="item"
-						ref="edit-component"
-						:isEdit="true"
-					></component> -->
-				</ul>
+				<ErrorMessage :message="message" :messageStyles="messageStyles" />
+				<ResourceActions :isCollectionRoot="isCollectionRoot" @save="saveResource" @delete="deleteResource" />
+				<ResourceForm v-model:resourceLabel="resourceLabel" v-model:tagsAsString="tagsAsString"
+					v-model:resourcePermissionsInternalHide="resourcePermissionsInternalHide
+						" :item="item" @thumbnailChanged="thumbnailHandler" />
 
 				<!-- Render ReorderResources if resource is a collection or topic bundle with atleast one child present -->
-				<!-- <ReorderResources
-					v-if="
-						isCollectionOrTopicBundle &&
-						childrenLoaded &&
-						item.content.children.length > 0
-					"
-					:children="children"
-					@reordered="reorderHandler"
-				></ReorderResources> -->
+				<ReorderResources v-if="isCollectionOrTopicBundle &&
+					childrenLoaded &&
+					item.content.children.length > 0
+					" :children="children" @reordered="reorderHandler"></ReorderResources>
 			</div>
 		</div>
 		<!-- Show ResourceDisplay to preview content when *not* a collection or topic bundle -->
-		<!-- <ResourceDisplay
-			v-if="!isCollectionOrTopicBundle && resourceLoaded"
-			:showCloseButton="false"
-			:autoplay="false"
-			:item="item"
-			:isEditPreviewMode="true"
-		></ResourceDisplay> -->
+		<ResourceDisplay v-if="!isCollectionOrTopicBundle && resourceLoaded" :showCloseButton="false" :autoplay="false"
+			:item="item" :isEditPreviewMode="true"></ResourceDisplay>
 	</div>
 </template>
 
@@ -195,26 +39,22 @@ import {
 	IResource_Quiz_UQ_Chem,
 	AuthMechanism,
 	IResource_Base,
-	IResource_Quiz_Question,
-	IResource_Quiz_UQ_Chem_Database,
 } from "@/types/Resource";
 import type { SuccessMessage } from "@/types/SuccessMessage";
 import { createAuthObjectIfNotExist } from "@/utils/Permission";
 
 import ResourceDisplay from "@/components/resource/display/ResourceDisplay.vue";
+import ErrorMessage from "@/components/resource/ErrorMessage.vue";
+import ResourceActions from "@/components/resource/edit/ResourceActions.vue";
+import ResourceForm from "@/components/resource/edit/ResourceForm.vue";
 
-import Url from "../components/resource/edit/Url.vue";
-import VideoInternal from "../components/resource/edit/VideoInternal.vue";
-import DocumentInternal from "../components/resource/edit/DocumentInternal.vue";
-import DocumentExternal from "../components/resource/edit/DocumentExternal.vue";
-import Thumbnail from "../components/resource/edit/Thumbnail.vue";
-import ServiceExternalLti from "../components/resource/edit/ServiceExternalLti.vue";
-import QuizUq from "../components/resource/edit/quiz/QuizUq.vue";
+import type { Status } from "@/utils/Resources";
+import { statusTypes } from "@/utils/Resources";
 
 import ReorderResources from "@/components/resource/ReorderResources.vue";
 import PathBreadcrumbs from "@/components/resource/PathBreadcrumbs.vue";
 
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 
 function cleanPaths(paths: string | string[]) {
 	// These are indices for String#substr() with regards to stripping
@@ -239,65 +79,15 @@ function cleanPaths(paths: string | string[]) {
 	return allPaths;
 }
 
-/** An array to map components to resource types */
-const RESOURCE_MAP = [
-	{
-		resourceType: ResourceType.URL,
-		label: "Link",
-		component: Url,
-	},
-	{
-		resourceType: ResourceType.DOCUMENT_INTERNAL,
-		label: "Document (Editor)",
-		component: DocumentInternal,
-	},
-	{
-		resourceType: ResourceType.DOCUMENT_EXTERNAL,
-		label: "Document (Link to external)",
-		component: DocumentExternal,
-	},
-	{
-		resourceType: ResourceType.QUIZ_UQ_CHEM,
-		label: "Quiz",
-		component: QuizUq,
-	},
-
-	/**
-	 * KIM: Add your custom question display view here
-	 * resourceType: ResourceType.QUIZ_QUESTION
-	 */
-	{
-		resourceType: ResourceType.RESOURCE_EXPLORER_INLINE_DOCUMENT_INTERNAL,
-		label: "Note (Inline document)",
-		component: DocumentInternal,
-	},
-	{
-		resourceType: ResourceType.VIDEO_INTERNAL,
-		label: "Video (Upload)",
-		component: VideoInternal,
-	},
-	{
-		resourceType: ResourceType.SERVICE_EXTERNAL_LTI,
-		label: "LTI Tool",
-		component: ServiceExternalLti,
-	},
-];
-
-interface Status {
-	message: string;
-	class: string;
-}
-interface StatusType {
-	[key: string]: Status;
-}
-
 export default defineComponent({
 	name: "ResourceEditor",
 	components: {
 		ResourceDisplay,
-		Thumbnail,
 		ReorderResources,
 		PathBreadcrumbs,
+		ErrorMessage,
+		ResourceActions,
+		ResourceForm,
 	},
 	data() {
 		return {
@@ -314,27 +104,11 @@ export default defineComponent({
 
 				content: {},
 			} as IResource_FromServer,
-			resourceToChange: {} as IResource_FromServer,
+			resourceToChange: {
+				_id: "",
+			} as IResource_FromServer,
 
-			/** Stores status types and css classes */
-			statusTypes: {
-				postSuccess: {
-					message: "Updated successfully",
-					class: "success",
-				},
-				postError: {
-					message: "Error updating resource. Please try again.",
-					class: "error",
-				},
-				deleteError: {
-					message: "Resource could not be deleted. Please try again.",
-					class: "error",
-				},
-				deleteSuccess: {
-					message: "Resource has been deleted successfully.",
-					class: "success",
-				},
-			} as StatusType,
+			formData: new FormData(),
 
 			resourceLabelMessage: undefined as SuccessMessage | undefined,
 
@@ -366,11 +140,6 @@ export default defineComponent({
 				this.childrenResources = childrenArray;
 			},
 		},
-
-		authMechanism() {
-			return AuthMechanism;
-		},
-
 		message: {
 			get() {
 				return this.statusInstance;
@@ -403,7 +172,7 @@ export default defineComponent({
 				return this.item.tags.join(",");
 			},
 			set(text: string) {
-				this.item.tags = text.trim().split(",");
+				this.resourceToChange.tags = text.trim().split(",");
 			},
 		},
 
@@ -418,8 +187,9 @@ export default defineComponent({
 			set(enabled: boolean) {
 				// Cannot do anything if auth object not initialized
 				if (!this.uqssoAuthObject) return;
-				this.item.permissions.auth![AuthMechanism.uqsso]!["basic"] =
-					enabled;
+				this.resourceToChange.permissions.auth![AuthMechanism.uqsso]![
+					"basic"
+				] = enabled;
 			},
 		},
 
@@ -481,8 +251,10 @@ export default defineComponent({
 			set(hide: boolean) {
 				// Cannot do anything if auth object not initialized
 				if (!this.internalAuthObject) return;
-				this.item.permissions.auth![AuthMechanism.internal]!["hidden"] =
-					hide;
+				this.resourceToChange.permissions = this.item.permissions;
+				this.resourceToChange.permissions.auth![
+					AuthMechanism.internal
+				]!["hidden"] = hide;
 			},
 		},
 
@@ -508,7 +280,7 @@ export default defineComponent({
 
 		resourceLabel: {
 			get() {
-				return this.item.label;
+				return this.resourceToChange.label || this.item.label;
 			},
 			set(label: string) {
 				this.resourceToChange.label = label;
@@ -534,120 +306,89 @@ export default defineComponent({
 		_from: RouteLocationNormalized,
 		next: Function
 	) {
-		// We can't just make the `beforeRouteEnter` hook "async" due to type
-		// conflicts, so instead we use an async IIFE as a wrapper inside the
-		// body
 		(async () => {
 			try {
-				// ID of the gotten resource is provided from the route
 				const id = cleanPaths(to.params.pathMatch).pop();
-
 				if (id === undefined || id.length === 0) {
 					throw new Error("No ID could be extracted from path");
 				}
 
-				const result = await Api.Resource.getById(id);
-				let item = result.data;
+				next(async (vm: any) => {
+					const item = await vm.fetchItem(id);
+					const childrenDataArray = await vm.fetchChildren(item);
+					const previousQuiz = item
+						? item
+						: ({} as IResource_Quiz_UQ_Chem);
 
-				let childrenDataArray: IResource_FromServer[] | undefined =
-					undefined;
-
-				// Check if resource is a Quiz and extract children questions
-				const quiz = await Api.Resource.convertQuiz(item);
-				let previousQuiz = {} as IResource_Quiz_UQ_Chem;
-
-				// Resource is not a quiz so extract children
-				if (!quiz) {
-					// Check if resource contains children and children are not already objects
-					if (
-						item.content.children &&
-						typeof item.content.children[0] !== "object"
-					) {
-						// If yes, fetch children as well
-						const children: string[] = item.content.children;
-
-						const childrenResponses = await Promise.all(
-							children.map((childId) =>
-								Api.Resource.getById(childId)
-							)
-						);
-
-						childrenDataArray = childrenResponses.map(
-							(response) => response.data
-						);
-					}
-				} else {
-					// Append current state to questions
-					Api.Resource.appendKeysToQuiz(
-						quiz as IResource_Quiz_UQ_Chem
+					vm.setupComponent(
+						vm,
+						item,
+						childrenDataArray,
+						previousQuiz
 					);
-					item = quiz;
-					// Store current state of quiz to use when performing diff check after edit
-					previousQuiz = quiz;
-				}
-
-				// Note that the component has not actually been instantiated fully
-				// at this point, so direct references to `this` are not valid.
-				// Instead, we use `vm` with type any to refer to the component.
-				next((vm: any) => {
-					// Set the response object as the `item` for this component
-					createAuthObjectIfNotExist(item);
-					vm.item = item;
-					vm.previousQuiz = previousQuiz;
-					// Set resource loaded to true so that certain child components get item when it's loaded
-					vm.resourceLoaded = true;
-
-					if (childrenDataArray !== undefined) {
-						vm.assignChildren(childrenDataArray);
-					}
-
-					vm.setupBreadcrumbs();
 				});
 			} catch (e) {
-				// TODO: Handle errors!
 				console.log(e);
-
 				alert("Could not retrieve requested resource");
 			}
 		})();
 	},
 	methods: {
-		isPermissionApplicable(
-			item: IResource_FromServer,
-			authMechanism: AuthMechanism
-		) {
-			if (!item) return false;
-			switch (authMechanism) {
-				case AuthMechanism.uqsso:
-					// Permission is applicable for all resources except note or URL
-					// Also, if item type does not exist, permission is not applicable
-					return (
-						item.type &&
-						!(
-							item.type === ResourceType.URL ||
-							item.type ===
-								ResourceType.RESOURCE_EXPLORER_INLINE_DOCUMENT_INTERNAL
-						)
-					);
-				case AuthMechanism.internal:
-					// At the moment, any resource can be hidden
-					// i.e. this permission is applicable to all resource types
-					return true;
-				default:
-					return false;
-			}
-		},
+		/** Fetches resource by ID */
+		async fetchItem(id: string) {
+			const result = await Api.Resource.getById(id);
+			let item = result.data;
 
+			const quiz = await Api.Resource.convertQuiz(item);
+			if (quiz) {
+				Api.Resource.appendKeysToQuiz(quiz as IResource_Quiz_UQ_Chem);
+				item = quiz;
+			}
+
+			return item;
+		},
+		/** Fetches children of resource */
+		async fetchChildren(item: any) {
+			if (
+				item.content.children &&
+				typeof item.content.children[0] !== "object"
+			) {
+				const children: string[] = item.content.children;
+				const childrenResponses = await Promise.all(
+					children.map((childId) => Api.Resource.getById(childId))
+				);
+				return childrenResponses.map((response) => response.data);
+			}
+			return undefined;
+		},
+		/** Sets up component with data */
+		setupComponent(
+			vm: any,
+			item: any,
+			childrenDataArray: IResource_FromServer[] | undefined,
+			previousQuiz: IResource_Quiz_UQ_Chem
+		) {
+			createAuthObjectIfNotExist(item);
+			vm.item = item;
+			vm.previousQuiz = previousQuiz;
+			vm.resourceLoaded = true;
+
+			if (childrenDataArray !== undefined) {
+				vm.assignChildren(childrenDataArray);
+			}
+
+			vm.setupBreadcrumbs();
+		},
 		/** Event handler for capturing thumbnail changes */
 		thumbnailHandler(thumbnail: any) {
-			this.item.thumbnail = thumbnail;
+			this.resourceToChange.thumbnail = thumbnail;
 		},
 
 		reorderHandler(newChildren: IResource_FromServer[]) {
 			const newChildrenIds = newChildren.map(
 				(child: IResource_FromServer) => child._id
 			);
-			this.item.content.children = [...newChildrenIds];
+			this.resourceToChange.content = { children: [...newChildrenIds] };
 		},
 		createAuthObjectIfNotExist(resource: IResource_Base) {
 			if (
@@ -688,47 +429,41 @@ export default defineComponent({
 
 		/** Validates Editor and child components */
 		validate(): SuccessMessage {
-			const failureMessages: string[] = [];
+			const failureMessages = this.validateResourceLabel();
+			const editComponentMessages =
+				this.validateComponent("edit-component");
+			const thumbnailComponentMessages = this.validateComponent(
+				"thumbnail-edit-component"
+			);
 
-			// Ensure that resource label is filled in
-			if (this.resourceLabel.trim().length === 0) {
-				const messageStr = "Title is empty";
-				failureMessages.push(messageStr);
-
-				this.setResourceLabelMessage(false, [messageStr]);
-			}
-
-			// We also check the editor component inside for its validity as well
-			const editComponentValidationSuccess: SuccessMessage = (
-				(this.$refs["edit-component"] &&
-					(this.$refs["edit-component"] as any).validate) ||
-				(() => ({ success: true }))
-			)();
-
-			const thumbnailComponentValidationSuccess: SuccessMessage = (
-				(this.$refs["thumbnail-edit-component"] &&
-					(this.$refs["thumbnail-edit-component"] as any).validate) ||
-				(() => ({ success: true }))
-			)();
-
-			// Combine the two sets of messages
 			const combinedMessages = [
 				...failureMessages,
-				...(editComponentValidationSuccess.messages || []),
-				...(thumbnailComponentValidationSuccess.messages || []),
+				...editComponentMessages,
+				...thumbnailComponentMessages,
 			];
 
-			// If there are any messages, this means that validation failed
-			if (combinedMessages.length > 0) {
-				return {
-					success: false,
-					messages: combinedMessages,
-				};
-			} else {
-				return {
-					success: true,
-				};
+			return {
+				success: combinedMessages.length === 0,
+				messages: combinedMessages,
+			};
+		},
+
+		validateResourceLabel(): string[] {
+			if (this.resourceLabel.trim().length === 0) {
+				const messageStr = "Title is empty";
+				this.setResourceLabelMessage(false, [messageStr]);
+				return [messageStr];
 			}
+			return [];
+		},
+
+		validateComponent(refName: string): string[] {
+			const component = this.$refs[refName] as any;
+			if (component && component.validate) {
+				const { messages = [] } = component.validate();
+				return messages;
+			}
+			return [];
 		},
 
 		/**
@@ -772,7 +507,7 @@ export default defineComponent({
 				// Return to parent after successful removal
 				this.goToParentCollection();
 			} catch (e) {
-				this.message = this.statusTypes.deleteError;
+				this.message = statusTypes.deleteError;
 			}
 		},
 
@@ -815,229 +550,103 @@ export default defineComponent({
 			}
 		},
 
-		/**
-		 * Add any questions that were added during editing and
-		 * update all existing questions
-		 * @param previousIds Array of object ids for unedited quiz
-		 * @param quiz Edited quiz resource
-		 * @returns Updated quiz
-		 */
-		async updateAddQuestions(
-			previousIds: string[],
-			quiz: IResource_Quiz_UQ_Chem
-		) {
-			const updatedQuiz = quiz;
-			const updatedQuestions = await Promise.all(
-				updatedQuiz.content.questionList.map(async (question) => {
-					const formData = new FormData();
-					this.cleanupResourceObject(question);
-					formData.append("resource", JSON.stringify(question));
-					// Check if question already existed in quiz
-					const result =
-						question._id && previousIds.includes(question._id)
-							? await Api.Resource.updateById(
-									question._id,
-									question,
-									formData
-							  )
-							: !question._id
-							? // Question doesn't exist in database (doesn't contain an ID) so create it
-							  await Api.Resource.insert(formData)
-							: undefined;
-					return result
-						? (result.data as IResource_Quiz_Question)
-						: question;
-				})
-			);
-
-			// Update Quiz with updated question list
-			updatedQuiz.content.questionList = updatedQuestions;
-
-			return updatedQuiz;
-		},
-
-		/**
-		 * Perform diff check to see if any question has been deleted from quiz
-		 * @param previousIds Array of object ids for unedited quiz
-		 * @param editedIds Array of object ids for edited quiz
-		 * @param quiz Edited quiz resource
-		 * @returns Updated quiz
-		 */
-		async removeQuestions(
-			previousIds: string[],
-			editedIds: string[],
-			quiz: IResource_Quiz_UQ_Chem
-		) {
-			const updatedQuiz = quiz;
-			// Compare IDs to check if any question has been deleted
-			// Array contains IDs that have been deleted
-			const questionIdDiff = previousIds.filter(
-				(id) => !editedIds.includes(id)
-			);
-
-			// Delete all questions from database that were removed during edit
-			for (const questionId of questionIdDiff)
-				await Api.Resource.remove(questionId);
-
-			// Remove child objects from quiz
-			const updatedQuestions = updatedQuiz.content.questionList.filter(
-				(question) => !questionIdDiff.includes(question._id)
-			);
-			updatedQuiz.content.questionList = updatedQuestions;
-
-			return updatedQuiz;
-		},
-
-		/**
-		 * This function handles quiz questions and
-		 * removes temporary currentState propert from quiz
-		 *
-		 * - Deletes questions that were removed from quiz
-		 * - Updates and adds questions
-		 * @param item Edited quiz
-		 * @returns Array of children question object IDs
-		 */
-		async convertQuizToServer(item: IResource_Quiz_UQ_Chem) {
-			// Removes all `currentState` properties from a quiz
-			// `currentState` is a temporary prop added to hold the state of quiz elements
-			if (item.type === ResourceType.QUIZ_UQ_CHEM) {
-				this.removeKeys(item.content, ["currentState"]);
-			}
-
-			let quiz = item;
-			const editedQuestionIds = Api.Resource.combineQuestionIDs(
-				item.content.questionList
-			);
-			const previousQuestionIds = Api.Resource.combineQuestionIDs(
-				this.previousQuiz.content.questionList
-			);
-
-			// Delete questions that were removed from quiz
-			quiz = await this.removeQuestions(
-				previousQuestionIds,
-				editedQuestionIds,
-				quiz
-			);
-
-			// Update and add all children questions for quiz
-			quiz = await this.updateAddQuestions(previousQuestionIds, quiz);
-
-			const objectIds = Api.Resource.combineQuestionIDs(
-				quiz.content.questionList
-			);
-			return objectIds;
-		},
-
 		/** Prepares resource payload and makes API calls to save resource */
 		async saveResource() {
-			// Validate this component and child components
-			const successMessage: SuccessMessage = this.validate();
-
-			// Stop now if there are some validations which failed
-			if (successMessage.success === false) {
-				return;
-			}
-
-			const uploadHookMessage: SuccessMessage =
-				await this.preUploadHook();
-			// Stop now if there are some hooks that failed
-			if (uploadHookMessage.success === false) {
-				return;
-			}
-
 			try {
-				let item = JSON.parse(JSON.stringify(this.item));
-				if (this.item.thumbnail && this.item.thumbnail.file) {
-					item.thumbnail.file = new File(
-						[this.item.thumbnail.file],
-						this.item.thumbnail.file.name
-					);
-				}
+				const successMessage = this.validate();
+				if (!successMessage.success) return;
 
-				const resourceObject: IResource_Base = {
-					type: item.type,
-					label: item.label,
-					tags: item.tags,
-					permissions: item.permissions,
-					content: item.content,
-					thumbnail: item.thumbnail,
-				};
+				const uploadHookMessage = await this.preUploadHook();
+				if (!uploadHookMessage.success) return;
 
-				this.cleanupResourceObject(resourceObject);
+				const item = this.prepareItemForUpdate();
 
-				const formData = new FormData();
-
-				if (item.thumbnail === null) {
-					resourceObject.thumbnail = null;
-				} else if (item.thumbnail) {
-					if (
-						item.thumbnail.url !== undefined &&
-						item.thumbnail.url !== null
-					) {
-						resourceObject.thumbnail = {
-							url: item.thumbnail.url,
-							size: "cover",
-						};
-					} else if (item.thumbnail.file) {
-						formData.append(
-							"thumbnailUploadFile",
-							item.thumbnail.file
-						);
-					} else if (
-						typeof item.thumbnail.timeToTakeFrame === "number"
-					) {
-						resourceObject.thumbnail = {
-							timeToTakeFrame: item.thumbnail.timeToTakeFrame,
-						};
-					}
-				}
-
-				this.cleanupResourceObject(resourceObject);
-
-				console.log(resourceObject)
+				this.cleanupResourceObject(item);
 
 				const result = await Api.Resource.updateById(
-					item._id,
-					resourceObject,
-					formData
+					JSON.parse(JSON.stringify(this.item))._id,
+					item,
+					this.formData
 				);
 
-				// Force update this item's data
-				const updatedResource = await Api.Resource.convertQuiz(
-					result.data
-				);
-				// Quizzes have to be converted back to questionList array of children
-				// questions and add the currentState properties back to display them
-				if (updatedResource) {
-					Api.Resource.appendKeysToQuiz(updatedResource);
-					this.item = updatedResource;
-				} else {
-					this.item = result.data;
-				}
+				this.updateItemWithResponse(result);
 
-				this.message = this.statusTypes.postSuccess;
+				this.message = statusTypes.postSuccess;
 			} catch (e) {
 				// TODO: Handle errors!
-				this.message = this.statusTypes.postError;
+				this.message = statusTypes.postError;
 			}
 		},
+		/**
+		 * Prepares item for upload
+		 */
+		prepareItemForUpdate() {
+			console.log(JSON.parse(JSON.stringify(this.item)));
+			const item = JSON.parse(JSON.stringify(this.resourceToChange));
 
-		/** Finds component based on resource type from RESOURCE_MAP */
-		getResourceEditComponent(resourceType: ResourceType) {
-			const typeObj = RESOURCE_MAP.find(
-				(x) => x.resourceType === resourceType
-			);
+			item.content = this.item.content;
 
-			// Either returns `undefined` if `typeObj === undefined`; otherwise the
-			// `.component` value
-			return typeObj && typeObj.component;
+			if (
+				this.resourceToChange.thumbnail &&
+				this.resourceToChange.thumbnail.file
+			) {
+				item.thumbnail.file = new File(
+					[this.resourceToChange.thumbnail.file],
+					this.resourceToChange.thumbnail.file.name
+				);
+			};
+
+			if (item.thumbnail === null) {
+				item.thumbnail = {
+					url: "",
+				};
+			};
+
+
+			if (item.thumbnail) {
+				this.prepareThumbnail(item);
+			}
+
+			return item;
 		},
-
-		/** Finds type object based on resource type from RESOURCE_MAP */
-		getTypeObjectByResourceType(resourceType: ResourceType) {
-			return RESOURCE_MAP.find((x) => x.resourceType === resourceType);
+		/**
+		 * Prepares thumbnail for upload
+		 * @param item Resource object
+		 */
+		prepareThumbnail(item: IResource_FromServer) {
+			if (
+				item.thumbnail.url !== undefined &&
+				item.thumbnail.url !== null
+			) {
+				item.thumbnail = {
+					url: item.thumbnail.url,
+					size: "cover",
+				};
+			} else if (item.thumbnail.file) {
+				this.formData.append(
+					"thumbnailUploadFile",
+					item.thumbnail.file
+				);
+			} else if (typeof item.thumbnail.timeToTakeFrame === "number") {
+				item.thumbnail = {
+					timeToTakeFrame: item.thumbnail.timeToTakeFrame,
+				};
+			}
 		},
+		/**
+		 * Updates item with response from API
+		 * @param result AxiosResponse object
+		 */
+		async updateItemWithResponse(result: AxiosResponse) {
+			const updatedResource = await Api.Resource.convertQuiz(result.data);
 
+			if (updatedResource) {
+				Api.Resource.appendKeysToQuiz(updatedResource);
+				this.item = updatedResource;
+			} else {
+				this.item = result.data;
+			}
+		},
 		/**
 		 * Fetches collection resources using collection ids array
 		 * @param ancestorCollectionIds Array of ancestor collections of the current resource being edited

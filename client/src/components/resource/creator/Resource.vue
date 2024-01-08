@@ -12,7 +12,7 @@
 		<div class="field">
 			<label>
 				<span class="field-label">Type</span>
-				<select v-model="resourceType" cy-data="resource-select">
+				<select v-model="resourceType" cy-data="resource-select" >
 					<option
 						v-for="typeObj in resourceTypesMap"
 						:key="typeObj.resourceType"
@@ -45,6 +45,7 @@
 			<label>
 				<span class="field-label">Tags</span>
 				<input
+					cy-data="tags-field"
 					type="text"
 					v-model="tagsAsString"
 					placeholder="Enter comma separated tags..."
@@ -70,6 +71,7 @@
 					type="checkbox"
 					v-model="resourcePermissionsInternalHide"
 					class="standard-width"
+					cy-data="visibility-checkbox"
 				/>
 				<span>Hide resource</span>
 			</label>
@@ -136,61 +138,11 @@ import {
 	MultipleChoiceQuestion,
 } from "@/types/Resource";
 import { createAuthObjectIfNotExist } from "@/utils/Permission";
-import Url from "@/components/resource/edit/Url.vue";
-import VideoInternal from "@/components/resource/edit/VideoInternal.vue";
 import ResourceThumbnail from "@/components/resource/edit/Thumbnail.vue";
-import DocumentInternal from "@/components/resource/edit/DocumentInternal.vue";
-import DocumentExternal from "@/components/resource/edit/DocumentExternal.vue";
-import QuizUq from "@/components/resource/edit/quiz/QuizUq.vue";
-import ServiceExternalLti from "@/components/resource/edit/ServiceExternalLti.vue";
 import { defineComponent, PropType } from "vue";
 import clone from "just-clone";
 import set from "just-safe-set";
-import SmartQuizQuestion from "../display/quiz/SmartQuizQuestion.vue";
-
-/** An array to map components to resource types */
-const RESOURCE_MAP = [
-	{
-		resourceType: ResourceType.URL,
-		label: "Link",
-		component: Url,
-	},
-	{
-		resourceType: ResourceType.DOCUMENT_INTERNAL,
-		label: "Document (Editor)",
-		component: DocumentInternal,
-	},
-	{
-		resourceType: ResourceType.DOCUMENT_EXTERNAL,
-		label: "Document (Link to external)",
-		component: DocumentExternal,
-	},
-	{
-		resourceType: ResourceType.QUIZ_UQ_CHEM,
-		label: "Quiz",
-		component: QuizUq,
-	},
-	{
-		resourceType: ResourceType.RESOURCE_COLLECTION_SMART_QUIZ,
-		label: "Smart Quiz",
-		component: SmartQuizQuestion,
-	},
-	{
-		resourceType: ResourceType.RESOURCE_EXPLORER_INLINE_DOCUMENT_INTERNAL,
-		label: "Note (Inline document)",
-		component: DocumentInternal,
-	},
-	{
-		resourceType: ResourceType.VIDEO_INTERNAL,
-		label: "Video (Upload)",
-		component: VideoInternal,
-	},
-	{
-		resourceType: ResourceType.SERVICE_EXTERNAL_LTI,
-		label: "LTI Tool",
-		component: ServiceExternalLti,
-	},
-];
+import { RESOURCE_MAP } from "@/utils/Resources";
 
 export default defineComponent({
 	name: "ResourceCreate",
