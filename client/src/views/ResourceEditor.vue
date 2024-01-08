@@ -1,58 +1,28 @@
 <template>
 	<div class="resource-editor">
 		<p v-if="pathFetchError">Error: {{ pathFetchError }}</p>
-		<div
-			v-else
-			class="content-wrapper"
-		>
-			<PathBreadcrumbs
-				:pathItems="collectionsPath"
-				:displayEditButton="false"
-				class="breadcrumbs"
-			></PathBreadcrumbs>
+		<div v-else class="content-wrapper">
+			<PathBreadcrumbs :pathItems="collectionsPath" :displayEditButton="false" class="breadcrumbs"></PathBreadcrumbs>
 
 			<div class="content-area">
 				<h1>Resource Editor</h1>
 
-				<ErrorMessage
-					:message="message"
-					:messageStyles="messageStyles"
-				/>
-				<ResourceActions
-					:isCollectionRoot="isCollectionRoot"
-					@save="saveResource"
-					@delete="deleteResource"
-				/>
-				<ResourceForm
-					v-model:resourceLabel="resourceLabel"
-					v-model:tagsAsString="tagsAsString"
-					v-model:resourcePermissionsInternalHide="
-						resourcePermissionsInternalHide
-					"
-					:item="item"
-					@thumbnailChanged="thumbnailHandler"
-				/>
+				<ErrorMessage :message="message" :messageStyles="messageStyles" />
+				<ResourceActions :isCollectionRoot="isCollectionRoot" @save="saveResource" @delete="deleteResource" />
+				<ResourceForm v-model:resourceLabel="resourceLabel" v-model:tagsAsString="tagsAsString"
+					v-model:resourcePermissionsInternalHide="resourcePermissionsInternalHide
+						" :item="item" @thumbnailChanged="thumbnailHandler" />
 
 				<!-- Render ReorderResources if resource is a collection or topic bundle with atleast one child present -->
-				<ReorderResources
-					v-if="
-						isCollectionOrTopicBundle &&
-						childrenLoaded &&
-						item.content.children.length > 0
-					"
-					:children="children"
-					@reordered="reorderHandler"
-				></ReorderResources>
+				<ReorderResources v-if="isCollectionOrTopicBundle &&
+					childrenLoaded &&
+					item.content.children.length > 0
+					" :children="children" @reordered="reorderHandler"></ReorderResources>
 			</div>
 		</div>
 		<!-- Show ResourceDisplay to preview content when *not* a collection or topic bundle -->
-		<ResourceDisplay
-			v-if="!isCollectionOrTopicBundle && resourceLoaded"
-			:showCloseButton="false"
-			:autoplay="false"
-			:item="item"
-			:isEditPreviewMode="true"
-		></ResourceDisplay>
+		<ResourceDisplay v-if="!isCollectionOrTopicBundle && resourceLoaded" :showCloseButton="false" :autoplay="false"
+			:item="item" :isEditPreviewMode="true"></ResourceDisplay>
 	</div>
 </template>
 
@@ -624,7 +594,14 @@ export default defineComponent({
 					[this.resourceToChange.thumbnail.file],
 					this.resourceToChange.thumbnail.file.name
 				);
-			}
+			};
+
+			if (item.thumbnail === null) {
+				item.thumbnail = {
+					url: "",
+				};
+			};
+
 
 			if (item.thumbnail) {
 				this.prepareThumbnail(item);

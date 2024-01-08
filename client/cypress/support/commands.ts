@@ -45,7 +45,6 @@ Cypress.Commands.add("administratorLogin", () => {
 });
 
 Cypress.Commands.add("createResource", () => {
-	cy.get('[cy-data="resource-select"]').select("Link");
 	cy.get('[cy-data="title-field"]').type(`Test Resource`);
 	cy.get(
 		"#container > div:nth-child(4) > div.resource-list > div > div:nth-child(4) > label > div > div > div > select"
@@ -53,6 +52,32 @@ Cypress.Commands.add("createResource", () => {
 	cy.get(
 		"#container > div:nth-child(4) > div.resource-list > div > div:nth-child(4) > label > div > div > div > div.option > div > div > form > label > input"
 	).selectFile("cypress/fixtures/image_test.jpg", { force: true });
+	cy.get('[cy-data="save-and-upload-button"]').click();
+	cy.intercept("/api/resource/*").as("updateQuery");
+	cy.wait("@updateQuery");
+});
+
+Cypress.Commands.add("createQuizResource", () => {
+	// General details
+	cy.get('[cy-data="title-field"]').type(`Test Quiz Resource`);
+	cy.get(
+		"#container > div:nth-child(4) > div.resource-list > div > div:nth-child(4) > label > div > div > div > select"
+	).select("IMAGE");
+	cy.get(
+		"#container > div:nth-child(4) > div.resource-list > div > div:nth-child(4) > label > div > div > div > div.option > div > div > form > label > input"
+	).selectFile("cypress/fixtures/image_test.jpg", { force: true });
+
+	//Create a quiz
+	cy.get(".resource-creator-resource > div:nth-child(7) > div:nth-child(1) > button:nth-child(2)").click();
+	cy.get("div.button:nth-child(2)").click();
+	cy.get(".controls > button:nth-child(1)").click();
+	cy.get(".controls > button:nth-child(1)").click();
+
+	// Make this question correct
+	cy.get("div.quiz-dropdown-option:nth-child(3) > select:nth-child(2)").select("Correct");
+	cy.get(".controls > button:nth-child(1)").click();
+
+	// Save and upload.
 	cy.get('[cy-data="save-and-upload-button"]').click();
 	cy.intercept("/api/resource/*").as("updateQuery");
 	cy.wait("@updateQuery");
@@ -67,6 +92,17 @@ Cypress.Commands.add("editResource", () => {
 	cy.intercept("/api/resource/*").as("updateQuery");
 	cy.wait("@updateQuery");
 });
+
+Cypress.Commands.add("editQuizResource", () => {
+	// Remove one answer option.
+	cy.get("#container > div.content-wrapper > div.content-area > ul > div > div.question > div.quiz-multiple-choice").click();
+	cy.get("#container > div.content-wrapper > div.content-area > ul > div > div.question > div.quiz-multiple-choice > div:nth-child(2) > div.dropdown-options > div:nth-child(2) > div.quiz-option-header > div > button").click();
+	// Save and upload.
+	cy.get('[cy-data="save-button"]').click();
+	cy.intercept("/api/resource/*").as("updateQuery");
+	cy.wait("@updateQuery");
+});
+
 
 Cypress.Commands.add("createCollection", () => {
 	cy.get('[cy-data="create-collection-button"]').click();
